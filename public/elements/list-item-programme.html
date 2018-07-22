@@ -1,0 +1,68 @@
+<template id="list-item-programme">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .list_item {
+            width: 100%;
+            height: 125px;
+            padding-left: 3vw;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            transition: background-color 0.4s;
+            z-index: 1;
+            background-color: #FFF;
+        }
+
+        .list_item_icon {
+            border-radius: 50%;
+            margin-right: 3vw;
+            border: .5px #393838 solid;
+            text-align: center;
+            font-size: 70px;
+            padding: 5px;
+            margin-right: 3vw;
+        }
+
+        .list_text {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            flex-basis: 100vw;
+            height: 100%;
+            border-bottom: 1px #393838 solid;
+        }
+
+        .list_item_text {
+            display: flex;
+            flex-direction: column;
+            z-index: 0;
+        }
+
+        .list_item_title {
+            margin-bottom: 5px;
+            font-size: 35px;
+        }
+
+        .list_item_caption {
+            font-size: 25px;
+            font-weight: 100;
+        }
+
+        .list_item_more {
+            margin-right: 5vw;
+            align-self: center;
+            font-size: 40px;
+        }
+    </style>
+    <div class="list_item">
+        <slot class="material-icons list_item_icon" name="icon"></slot>
+        <div class="list_text">
+            <div class="list_item_text">
+                <slot class="list_item_title" name="list_item_title"></slot>
+                <slot class="list_item_caption" name="list_item_caption"></slot>
+            </div>
+            <span class="material-icons list_item_more">tune</span>
+        </div>
+    </div>
+</template>

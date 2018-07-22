@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+
+<head>
+    <title>
+        PI-HOME
+    </title>
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="overlay.css">
+    <link rel="stylesheet" href="spinner.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="http://spin.js.org/spin.min.js"></script>
+    <script src="auth.js"></script>
+    <script src="functions.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+</head>
+
+<body>
+    <div id="error">
+        <i class="material-icons" id="warningicon">warning</i>
+        <span class="errortext" id="errortext">Er was een probleem met verbinden: </span>
+    </div>
+    <div id="holder">
+        <div id="connectingdiv">
+            <div id="spinner_holder">
+                <div class="spinner" id="spinner">
+                    <div class="spinner-wrapper">
+                        <div class="rotator">
+                            <div class="inner-spin"></div>
+                            <div class="inner-spin"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="connectingtextcontainer">
+                Verbinden...
+            </div>
+        </div>
+        <div class="overlay_card" id="overlay_card">
+            <div class="overlay_card_contents">
+                <div class="overlay_card_controls">
+                    <span class="overlay_card_controls_save">SAVE</span>
+                    <span class="material-icons overlay_card_controls_close">close</span>
+                </div>
+                <div class="overlay_card_title">
+                    Object
+                </div>
+                <div class="overlay_card_input">
+                    <div class="material-icons overlay_card_input_icon">access_time</div>
+                    <div class="overlay_card_input_object">
+                        <div class="overlay_card_input_object_holder">
+                            <label for="input_event_time_start" class="overlay_card_input_label">Tijd:</label><input type="time" name="time-start" value="00:00" class="overlay_card_input_time" id="input_event_time_start">
+                        </div>
+                        <div class="overlay_card_input_object_holder">
+                            <label for="input_event_time_range" class="overlay_card_input_label">Range:</label>
+                            <select id="input_event_time_range" name="time-range">
+                                <option value="5">5 minuten</option>
+                                <option value="10">10 minuten</option>
+                                <option value="15">15 minuten</option>
+                                <option value="20">20 minuten</option>
+                                <option value="25">25 minuten</option>
+                                <option value="30">30 minuten</option>
+                                <option value="45">45 minuten</option>
+                                <option value="60">60 minuten</option>
+                                <option value="90">90 minuten</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="overlay_card_input">
+                    <div class="material-icons overlay_card_input_icon">import_export</div>
+                    <div class="overlay_card_input_object">
+                        <div class="overlay_card_input_object_holder">
+                            <label for="input_event_position" class="overlay_card_input_label">Positie:</label>
+                            <select id="input_event_position" name="position">
+                                <option value="0">0%</option>
+                                <option value="10">10%</option>
+                                <option value="20">20%</option>
+                                <option value="30">30%</option>
+                                <option value="40">40%</option>
+                                <option value="50">50%</option>
+                                <option value="60">60%</option>
+                                <option value="70">70%</option>
+                                <option value="80">80%</option>
+                                <option value="90">90%</option>
+                                <option value="100">100%</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="overlay_card_input">
+                    <div class="material-icons overlay_card_input_icon">import_export</div>
+                    <div class="overlay_card_input_object">
+                        <div class="overlay_card_input_object_holder">
+                            <label for="input_event_priority" class="overlay_card_input_label">Prioriteit:</label>
+                            <select id="input_event_priority" name="priority">
+                                <option value="0">Laag</option>
+                                <option value="1">Middel</option>
+                                <option value="2">Hoog</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="floater">
+        <div class="menu">
+            <span class="material-icons menu_text">menu</span>
+        </div>
+        <div class="header">
+            <span class="header_title">Rolluiken voor</span>
+            <span class="header_text" id="position">Positie: <span id="obj-pos" class="header_text_prop">0% (op)</span></span>
+            <span class="header_text">Licht: <span id="obj-lux" class="header_text_prop">1000 lux</span></span>
+        </div>
+        <div class="material-button-floating"><span class="material-button-floating-text material-icons" id="fab"><img src="img/arrow_upward_animated.gif" class="material-button-floating-img" /></span></div>
+    </div>
+    <div id="controldiv">
+        <div class="content">
+            <div class="contentrow_holder">
+                <div class="material-icons icon">pan_tool</div>
+                <div class="objcontrol">
+                    Handmatige bediening <br />
+                    <div class="objcontrol_holder">
+                        <div class="material-button-flat button" onclick="sendUp();"><span class="material-icons button_full_icon">arrow_upward</span></div>
+                        <div class="material-button-flat button" onclick="sendStop();"><span class="material-icons button_full_icon">stop</span></div>
+                        <div class="material-button-flat button" onclick="sendDown();"><span class="material-icons button_full_icon">arrow_downward</span></div>
+                    </div>
+                    <div class="objcontrol_holder">
+                        <div class="material-button-flat button" onclick="sendDown();">25%</div>
+                        <div class="material-button-flat button" onclick="sendUp();">50%</div>
+                        <div class="material-button-flat button" onclick="sendStop();">75%</div>
+                        <div class="material-button-flat button" onclick="sendDown();">80%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="contentrow_holder">
+                <div class="material-icons icon">date_range</div>
+                <div class="objcontrol">
+                    Automatische bediening
+                    <div class="info_holder">
+                        <div class="info_text">
+                            Programma: <em>Vakantie</em>
+                            <span class="info_text_controls">
+                                    <span class="material-icons info_text_icon" id="bttn_edit_programme">edit</span> Programma bewerken of wisselen
+                            </span>
+                        </div>
+                        <hr class="divider" />
+                        <div class="info_text">
+                            Laatste taak: 13:00 <em>50%</em>
+                            <span class="info_text_controls">
+                                    <span class="material-icons info_text_icon">undo</span>Ongedaan maken
+                            </span>
+                            <span class="info_text_warning">
+                                    <span class="material-icons info_text_warning_icon">warning</span> Taak is ongedaan gemaakt
+                            </span>
+                        </div>
+                        <div class="info_text">
+                            Volgende taak: 15:00 <em>25%</em>
+                            <span class="info_text_controls">
+                                    <span class="material-icons info_text_icon">skip_next</span>Overslaan
+                            </span>
+                            <span class="info_text_warning">
+                                    <span class="material-icons info_text_warning_icon">warning</span> Taak is overgeslagen
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "pi-home",
+  "version": "1.0.0",
+  "description": "PI-Home ",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheRealKS/pi-blinds.git"
+  },
+  "author": "TheRealKS",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TheRealKS/pi-blinds/issues"
+  },
+  "homepage": "https://github.com/TheRealKS/pi-blinds#readme",
+  "dependencies": {
+    "@types/pigpio": "^0.4.2",
+    "@types/ws": "^5.1.2",
+    "date-fns": "^1.29.0",
+    "onoff": "^3.1.0",
+    "pigpio": "^1.1.0",
+    "ws": "^5.2.2"
+  }
+}

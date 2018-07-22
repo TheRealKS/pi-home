@@ -1,0 +1,61 @@
+{
+    "name": "programma",
+    "timecreated": "1531579516",
+    "lastedited": "1531579568",
+    "content": {
+        "mon": [
+            {
+                "type": "auto",
+                "trigger": "dawn",
+                "range": "30",
+                "data": {
+                    "pos": "0",
+                    "not_if": {
+                        "lux_low": true
+                    }
+                },
+                "priority": "0"
+            },
+            {
+                "type": "auto",
+                "trigger": "sundown",
+                "range": "30",
+                "data": {
+                    "pos": "90",
+                    "not_if": {
+                        "lux_high": true
+                    }
+                }
+            },
+            {
+                "type": "pos",
+                "time": "12:10",
+                "range": "50",
+                "data": {
+                    "pos": "60"
+                }
+            },
+            {
+                "type": "light",
+                "time": "12:10",
+                "range": "50",
+                "data": {
+                    "lux_min": "20000",
+                    "lux_max": "30000",
+                    "timeout": "5",
+                    "pos": "50"
+                }
+            }
+        ],
+        "tue": [
+            {
+                "type": "pos",
+                "time": "15:00",
+                "data": {
+                    "pos": "80"
+                }
+            }
+        ],
+        "wed": []
+    }
+}

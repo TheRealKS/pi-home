@@ -1,0 +1,116 @@
+.overlay_card {
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffffff;
+    z-index: 5;
+    display: block;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.overlay_card_contents {
+    width: 100vw;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-size: 5vw;
+}
+
+.overlay_card_title {
+    width: 100vw;
+    background-color: #3F51B5;
+    font-size: 5vw;
+    display: block;
+    color: #FFFFFF;
+    padding-top: 3vh;
+    padding-bottom: 3vh;
+    padding-left: 3vw;
+    padding-right: 3vw;
+}
+
+.overlay_card_controls {
+    width: 100vw;
+    background-color: #3F51B5;
+    font-size: 5vw;
+    display: block;
+    color: #FFFFFF;
+    padding-top: 2vh;
+    padding-bottom: 2vh;
+    padding-left: 3vw;
+    padding-right: 3vw;
+    line-height: 5vw;
+}
+
+.overlay_card_controls_close {
+    min-width: 0;
+    padding: 2vw;
+    padding-left: 0;
+    font-size: 7vw;
+}
+
+.overlay_card_controls_save {
+    float: right;
+    margin-right: 9vw;
+    padding: 2vw;
+    padding-right: 0;
+    line-height: 7vw;
+}
+
+.overlay_card_input {
+    width: 100vw;
+    display: flex;
+    flex-direction: row;
+    padding-left: 3vw;
+    padding-right: 3vw;
+    padding-top: 3vh;
+    padding-bottom: 3vh;
+    border-bottom: 1px solid #BDBDBD50;
+}
+
+.overlay_card_input_text {
+    background: transparent;
+    border: none;
+}
+
+.overlay_card_input_number {
+    background: transparent;
+    border: none;
+    min-width: 0px;
+}
+
+.overlay_card_input_time {
+    background: transparent;
+    border: none;
+    font-size: 5vw;
+    font-family: 'Roboto', sans-serif;
+    display: inline-grid;
+}
+
+.overlay_card_input_label {
+    margin-right: 2vw;
+}
+
+.overlay_card_input_icon {
+    font-size: 5vw;
+    margin-right: 5vw;
+    display: flex;
+    line-height: 6vw;
+    padding-top: 1vh;
+    color: #757575;
+}
+
+.overlay_card_input_object {
+    display: flex;
+    flex-direction: column;
+}
+
+.overlay_card_input_object_holder {
+    display: flex;
+    width: 80vw;
+    justify-content: space-between;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+}

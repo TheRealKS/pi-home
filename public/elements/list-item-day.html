@@ -1,0 +1,70 @@
+<template id="list-item-day">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .list_item {
+            width: 100%;
+            height: 125px;
+            padding-left: 3vw;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            transition: background-color 0.4s;
+            z-index: 1;
+            background-color: #FFF;
+        }
+
+        .border {
+            border-bottom: 1px #393838 solid;
+        }
+
+        .list_item_text {
+            display: flex;
+            flex-direction: column;
+            z-index: 0;
+        }
+
+        .list_item_title {
+            margin-bottom: 5px;
+            font-size: 35px;
+        }
+
+        .list_item_caption {
+            font-size: 25px;
+            font-weight: 100;
+        }
+
+        .list_text {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            flex-basis: 100vw;
+            height: 100%;
+            border-bottom: 1px #393838 solid;
+        }
+
+        .list_item_more {
+            margin-right: 5vw;
+            align-self: center;
+            font-size: 40px;
+        }
+
+        .full {
+            margin-left: 0;
+            flex-basis: 100vw;
+        }
+
+        .noborder {
+            border-bottom: none;
+        }
+    </style>
+    <div class="list_item border">
+        <div class="list_text full noborder">
+            <div class="list_item_text">
+                <slot class="list_item_title" name="list_item_title">Test programma</slot>
+                <slot class="list_item_caption" name="list_item_caption">Mon-Tue-Wed</slot>
+            </div>
+            <span class="material-icons list_item_more">arrow_right</span>
+        </div>
+    </div>
+</template>

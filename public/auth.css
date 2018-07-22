@@ -1,0 +1,150 @@
+html,
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #FFFFFF;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    margin: 0px;
+    padding: 0px;
+    -moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;
+}
+
+.logotext {
+    width: 100vw;
+    height: 6vh;
+    font-size: 4vh;
+    line-height: 6vh;
+    vertical-align: middle;
+    text-align: center;
+    color: #303F9F;
+}
+
+#logo {
+    height: 17vh;
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+#pin {
+    width: 100vw;
+    height: 22vh;
+    font-size: 20vw;
+    text-align: center;
+    letter-spacing: 8vw;
+    padding-left: 8vw;
+    color: #3F51B5;
+    display: block;
+    margin: auto;
+    background: none;
+    border: none;
+}
+
+.pininputnumber {
+    float: left;
+    font-size: 2em;
+    width: 33%;
+    height: 100px;
+}
+
+/*@media (max-width: 600px) {*/
+    .pinscreen {
+        width: 100vw;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #pinnumbers {
+    width: 100vw;
+    height: 44.5vh;
+    display: block;
+    margin: auto;
+    padding-right: 0.5vw;
+    padding-left: 0.5vw;
+    padding-bottom: 0.5vh;
+    position: relative;
+    background-color: #3F51B5;
+    }
+
+    .pinnumber {
+    display: block;
+    float: left;
+    background-color: #3F51B5;
+    padding-left: 6vw;
+    padding-right: 6vw;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    font-size: 7vh;
+    width: 21vw;
+    height: 9vh;
+    justify-content: center;
+    align-items: center;
+    text-align: middle;
+    }
+
+    .number {
+    display: flex;
+    vertical-align: middle;
+    justify-content: center;
+    margin-top: 1vw;
+    color: #FFFFFF;
+    }
+
+    .material-icons {
+        font-size: 7vh;
+    }
+/*}*/
+/*@media (min-width: 600px) {
+    .pinscreen {
+        width: 600px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #pinnumbers {
+    width: 80%;
+    height: auto;
+    display: block;
+    float: none;
+    margin: auto;
+    }
+
+    .pinnumber {
+    display: block;
+    float: left;
+    border-radius: 10%;
+    background-color: #000000;
+    margin: 3.2%;
+    font-size: 15%;
+    width: 20%;
+    height: 20%;
+    justify-content: center;
+    align-items: center;
+    text-align: middle;
+    color: #000000;
+    }
+
+    .number {
+    display: flex;
+    vertical-align: middle;
+    justify-content: center;
+    margin-top: 1%;
+    color: #FFFFFF;
+    }
+
+    .material-icons {
+    display: block;
+    float: left;
+    margin: 3.2%;
+    font-size: 20%;
+    width: 20%;
+    height: 20%;
+    justify-content: center;
+    align-items: center;
+    text-align: middle;
+    color: #000000;
+    }
+}*/

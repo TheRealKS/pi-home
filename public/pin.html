@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+
+<head>
+    <title>
+        PI-HOME
+    </title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="animate.css">
+    <link rel="stylesheet" href="auth.css">
+    <script src="md5.min.js"></script>
+    <script src="auth.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+</head>
+
+<body onload="setPrePin();">
+    <!--
+    <div class="menu">
+        <span class="menu_text">PI-HOME <i>alpha</i></span>
+    </div>
+    !-->
+    <div class="pinscreen">
+        <div id="pinholder">
+            <img src="PIHomeLogo.png" id="logo" />
+            <div class="logotext">Voer PIN in</div>
+            <input id="pin" type="text" value="----" disabled>
+        </div>
+        <div id="pinnumbers">
+            <div class="pinnumber" onclick="inputNumber('1');">
+                <span class="number">1</span>
+            </div>
+            <div class="pinnumber" onclick="inputNumber('2');">
+                <span class="number">2</span>
+            </div>
+            <div class="pinnumber" onclick="inputNumber('3');">
+                <span class="number">3</span>
+            </div>
+            <div class="pinnumber" onclick="inputNumber('4');">
+                <span class="number">4</span>
+            </div>
+            <div class="pinnumber" onclick="inputNumber('5');">
+                <span class="number">5</span>
+            </div>
+            <div class="pinnumber" onclick="inputNumber('6');">
+                <span class="number">6</span>
+            </div>
+            <div class="pinnumber" onclick="inputNumber('7');">
+                <span class="number">7</span>
+            </div>
+            <div class="pinnumber" onclick="inputNumber('8');">
+                <span class="number">8</span>
+            </div>
+            <div class="pinnumber" onclick="inputNumber('9');">
+                <span class="number">9</span>
+            </div>
+            <div class="pinnumber" onclick="backspace();">
+                <span class="material-icons number">backspace</span>
+            </div>
+            <div class="pinnumber">
+                <span class="number" onclick="inputNumber('0');">0</span>
+            </div>
+            <div class="pinnumber" onclick="checkPin();">
+                <span class="material-icons number">done</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

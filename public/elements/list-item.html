@@ -1,0 +1,55 @@
+<template id="list-item">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .list_item {
+            width: 100%;
+            height: 125px;
+            padding-left: 3vw;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: .5px #393838 solid;
+            transition: background-color 0.4s;
+            z-index: 1;
+            background-color: #FFF;
+        }
+
+        .list_item_text {
+            display: flex;
+            flex-direction: column;
+            z-index: 0;
+        }
+
+        .list_item_title {
+            margin-bottom: 5px;
+            font-size: 35px;
+        }
+
+        .list_item_caption {
+            font-size: 25px;
+            font-weight: 100;
+        }
+
+        .list_item_actions {
+            padding-right: 6vw;
+            display: flex;
+            align-items: center;
+        }
+
+        .list_item_action {
+            margin-left: 3vw;
+            font-size: 30px;
+        }
+    </style>
+    <div class="list_item">
+        <div class="list_item_text">
+            <slot class="list_item_title" name="list_item_title">Test programma</slot>
+            <slot class="list_item_caption" name="list_item_caption">Mon-Tue-Wed</slot>
+        </div>
+        <div class="list_item_actions">
+            <span class="material-icons list_item_action" id="action_done">done</span>
+            <span class="material-icons list_item_action" id="action_edit">edit</span>
+        </div>
+    </div>
+</template>

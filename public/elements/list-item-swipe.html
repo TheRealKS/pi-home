@@ -1,0 +1,32 @@
+<template id="list-item-swipe">
+    <style>
+        .select_programme {
+            position: absolute;
+            width: 100vw;
+            height: 125px;
+            display: flex;
+            justify-content: flex-end;
+            z-index: -1;
+            border-bottom: .5px #393838 solid;
+        }
+
+        .select_icon {
+            height: 100%;
+            width: 125px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: linear-gradient(green, green);
+            background-position: 50% 50%;
+            background-repeat: no-repeat;
+            background-size: 0% 0%;
+            transition: background-size .2s, color .5s;
+        }
+    </style>
+    <div class="select_programme" id="prog_1">
+        <div class="select_icon">
+            <span class="material-icons">done</span>
+        </div>
+    </div>
+
+</template>

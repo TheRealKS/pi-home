@@ -1,0 +1,5 @@
+/node_modules
+/old
+/server.js
+/gpio/**/*.js
+/server/**/*.js

@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "removeComments": true
+    },
+    "include": [
+        "server/*",
+        "gpio/*",
+        "server.ts"
+    ]
+}
