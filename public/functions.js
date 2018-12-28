@@ -8,8 +8,6 @@ function load() {
     document.getElementById("bttn_edit_programme").addEventListener("click", () => {
         window.location.replace("schedule/schedule.html"); 
     });
-    go();
-    return;
     if (sessionStorage.authorized && sessionStorage.timeauthorized) {
         var date = new Date();
         if (date.getTime() - sessionStorage.timeauthorized < daymilliseconds) {

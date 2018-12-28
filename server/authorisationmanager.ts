@@ -10,7 +10,7 @@ export interface AuthcodeCheckReturnValue {
 
 
 export function checkAuthCode(code: AuthorisationJsonMessage, callback : Function, ip) {
-    readFile("auth.json", (err, data) => {
+    readFile("auth.json", 'utf8', (err, data) => {
         if (err) {
             console.error(err);
             callback({
@@ -20,22 +20,24 @@ export function checkAuthCode(code: AuthorisationJsonMessage, callback : Functio
             }, ip);
             return;
         }
-        let j = data.toJSON().data;
+        let j = JSON.parse(data);
         for (var i = 0; i < j.length; i++) {
             let element = j[i];
-            let timeleft = element.expires - Date.now();
-            if (code === element.code) {
+            let timeleft = element.expires - (Date.now() / 1000);
+            if (code.code === element.code) {
                 if (timeleft > 0) {
                     //Authorised!
                     callback({
                         "authorised": true,
                         "timeleft": timeleft
                     }, ip);
+                    return;
                 } else {
                     callback({
                         "authorised": false,
                         "error": 801
                     }, ip);
+                    return;
                 }
             }
         }
@@ -43,6 +45,7 @@ export function checkAuthCode(code: AuthorisationJsonMessage, callback : Functio
             "authorised": false,
             "error": 800
         }, ip);
+        return;
     });
     return undefined;
 }

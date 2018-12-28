@@ -6,6 +6,7 @@ import { processCommand } from './server/commandworker';
 import { GPIOAdaptor, Mode } from "./gpio/gpiomanager";
 import { AuthcodeCheckReturnValue, checkAuthCode } from "./server/authorisationmanager";
 import { generateAuthorizedJSON, generateNotAuthorizedJSON } from "./server/jsongenerator";
+import { PositionProvider, initPositionProvider } from "./sensor/positionprovider";
 
 const WebSocket = require("ws");
 
@@ -25,6 +26,9 @@ var gpio = new GPIOAdaptor();
 gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js");
 gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js");
 
+var posprovider : PositionProvider = initPositionProvider(gpio);
+
+var auxcollection = {pos: posprovider};
 
 ws.on("connection", function (ws, req) {
     let ip = req.connection.remoteAddress;
@@ -48,7 +52,7 @@ function processMessage(message, ip) {
         case "command":
             if (!connections.get(ip).authorised) break;
             let commandmessage: CommandJsonMessage = <CommandJsonMessage>rawjson;
-            processCommand(commandmessage, ip, gpio);
+            processCommand(commandmessage, ip, gpio, auxcollection);
             break;
         case "auth":
             let authmessage: AuthorisationJsonMessage = <AuthorisationJsonMessage>rawjson;
@@ -59,9 +63,12 @@ function processMessage(message, ip) {
 }
 
 function continueAuthProcess(returnvalue: AuthcodeCheckReturnValue, ip) {
+    let date = new Date();
+    let timestr = date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear() + "||" + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
     if (returnvalue.authorised === true) {
         connections.get(ip).websocket.send(generateAuthorizedJSON(returnvalue.timeleft));
         connections.get(ip).authorised = true;
+        console.log(timestr + "  --  New client authorized from ip " + connections.get(ip).ip);
     } else {
         if (returnvalue.errordetails)
         connections.get(ip).websocket.send(generateNotAuthorizedJSON(returnvalue.error, returnvalue.errordetails.message));
@@ -69,6 +76,7 @@ function continueAuthProcess(returnvalue: AuthcodeCheckReturnValue, ip) {
         connections.get(ip).websocket.send(generateNotAuthorizedJSON(returnvalue.error, undefined));
         connections.get(ip).websocket.close(); //Not authorised
         connections.get(ip).authorised = false;
+        console.log(timestr + "  --  Connection refused from ip " + connections.get(ip).ip + ", code: " + returnvalue.error);
     }
 }
 

@@ -65,7 +65,8 @@ body {
     padding-right: 0.5vw;
     padding-left: 0.5vw;
     padding-bottom: 0.5vh;
-    position: relative;
+    position: absolute;
+    bottom: 0;
     background-color: #3F51B5;
     }
 

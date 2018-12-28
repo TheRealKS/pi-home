@@ -56,10 +56,24 @@ function showPinScreen() {
     window.location.replace("pin.html");
 }
 
+function createSendable(pin) {
+    //first hash the pin using a trivial function (i used md5), this so we don't just hash two charachters but also actually get something that is kind of long
+    var firsthash= md5(pin);
+    //md5 hashes are 32 bit, and we want two parts, so each part is 16 bits
+    var firstpart = firsthash.substr(0, 15);
+    var secondpart = firsthash.substr(31);
+    //because the two parts actually have to be secured, use a keccak based function to hash them, i just used shake128
+    var shake1 = shake128(firstpart, 512);
+    var shake2 = shake128(secondpart, 512);
+    //now, because shake128 is a secure function, so either of the parts cannot be derived from the other part (no merkle-damgard!)
+    //because of preimage res the original string can also not be found, so the pin is never used in plaintext outside of the device
+    return {part1: shake1, part2: shake2};
+}
+
 function checkPin() {
     if (code.length == 4) {
-    var upin = md5(code);
-    fetch("getcorrectpin.php?pin=" + upin).then(function(res) {
+    var upin = createSendable(code);
+    fetch("getcorrectpin.php?pin=" + JSON.stringify(upin)).then(function(res) {
             if (res.ok) {
                 return res.text();
             } else {

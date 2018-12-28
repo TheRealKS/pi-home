@@ -18,3 +18,12 @@ export function generateNotAuthorizedJSON(error : number, errordetails? : string
     o["errordetails"] = errordetails;
     return JSON.stringify(o);
 }
+
+//types: normal, critical
+export function generateErrorJSON(error : string, code? : number, type : string = "normal") {
+    let o = createBaseJSON("error");
+    o["error"] = error;
+    o["type"] = type;
+    o["code"] = code;
+    return JSON.stringify(o);
+}

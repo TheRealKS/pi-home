@@ -12,6 +12,11 @@ import {
 import {
     closestTo
 } from "date-fns";
+import { PositionProvider } from "../sensor/positionprovider";
+
+interface AuxiliaryCollection {
+    pos : PositionProvider
+}
 
 export enum Command {
     UP = 'up',
@@ -39,16 +44,18 @@ export class CommandHistoryRegistry {
     private listeners = [];
 
     addEntry(entry: CommandHistoryRegistryEntry, dispatchEvent : boolean) {
+        this.entries.push(entry);
         if (dispatchEvent)
         this.setWorkingState(true);
-        this.entries.push(entry);
     }
 
     setWorkingState(state : boolean) {
         this.working = state;
         if (state) {
+            if (this.listeners["working"])
             this.listeners["working"](this.getLatestEntry().command);
         } else {
+            if (this.listeners["stopworking"])
             this.listeners["stopworking"]();
         }
     }
@@ -86,7 +93,7 @@ export class CommandHistoryRegistry {
     }
 }
 
-export function processCommand(message: CommandJsonMessage, sender: string, gpio: GPIOAdaptor) {
+export function processCommand(message: CommandJsonMessage, sender: string, gpio: GPIOAdaptor, collection : AuxiliaryCollection) {
     //@ts-ignore
     if (global.history.currentimer) {
         //@ts-ignore
@@ -97,18 +104,22 @@ export function processCommand(message: CommandJsonMessage, sender: string, gpio
         clearTimeout(global.history.currenttimer);
     }
     if (message.command === Command.UP) {
+        collection.pos.primeForOperation();
         gpio.getInstance("relais1").setState(State.HIGH);
         gpio.getInstance("relais2").setState(State.HIGH);
         setCommandTimer(gpio);
         //@ts-ignore
         global.history.addEntry(new CommandHistoryRegistryEntry(Command.UP, Date.now(), sender), true);
     } else if (message.command === Command.DOWN) {
+        collection.pos.primeForOperation();
         gpio.getInstance('relais1').setState(State.HIGH);
         //@ts-ignore
         global.history.addEntry(new CommandHistoryRegistryEntry(Command.DOWN, Date.now(), sender), true);
         setCommandTimer(gpio);
     } else if (message.command === Command.STOP) {
         //@ts-ignore
+        console.log(collection.pos.getTriggers());
+        console.log(collection.pos.getDirection());
         global.history.setWorkingState(false);
         //@ts-ignore
         global.history.addEntry(new CommandHistoryRegistryEntry(Command.STOP, Date.now(), sender), false);   

@@ -16,9 +16,9 @@ import { GPIOInstance } from "./gpioinstance";
     }
 
     export enum InterruptEdge {
-        RISING_EDGE,
-        FALLING_EDGE,
-        EITHER_EDGE
+        RISING_EDGE = 'rising',
+        FALLING_EDGE = 'falling',
+        EITHER_EDGE = 'either'
     }
 
 
@@ -34,7 +34,7 @@ import { GPIOInstance } from "./gpioinstance";
 
         createNewInstance(name : string, pin : number, mode : Mode, owner : string, timeout? : number, pullUpDown? : PullMode, interruptEdge? : InterruptEdge) {
             let libinstance = new Gpio(pin, mode);
-            let instance = new GPIOInstance(libinstance, owner, name);
+            let instance = new GPIOInstance(libinstance, owner, name, mode, interruptEdge);
             this.instances[name] = instance;
             return instance;
         } 
@@ -50,5 +50,8 @@ import { GPIOInstance } from "./gpioinstance";
         getInstance(name : string) : GPIOInstance {
             return this.instances[name];
         }
+
+        //I2c   
+        createNewProtocolInstance()
         
     }

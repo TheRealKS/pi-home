@@ -3,3 +3,8 @@
 /server.js
 /gpio/**/*.js
 /server/**/*.js
+/sensor/**/*.js
+/auth.json
+/public/schedule/*.js
+/public/schedule/**/*.js
+/.vscode

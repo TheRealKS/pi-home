@@ -1,10 +1,10 @@
 <?php
     if (isset($_GET["pin"])) {
         $upin = $_GET["pin"];
+        $upin = json_decode($upin);
         $realpin = file_get_contents("../pin.txt");
-        $upin = hash("sha512", $upin);
-        $upin = strtoupper($upin);
-        if ($realpin == $upin) {
+        $realpin = json_decode($realpin);
+        if ($realpin->part1 == $upin->part1 && $realpin->part2 == $upin->part2) {
             $chars = "abcdefghijklmnopqrstuvwxyz0123456789";
             $code = "";
             for ($i = 0; $i <= 10; $i++) {
