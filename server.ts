@@ -23,8 +23,8 @@ interface ConnectionObject {
 var connections: Map<string, ConnectionObject> = new Map();
 
 var gpio = new GPIOAdaptor();
-gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js");
-gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js");
+gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js", 100);
+gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js", 100);
 
 var posprovider : PositionProvider = initPositionProvider(gpio);
 

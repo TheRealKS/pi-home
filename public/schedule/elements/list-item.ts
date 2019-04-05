@@ -8,7 +8,7 @@ import {tag, template} from '../node_modules/slim-js/Decorators.js';
             <span class="list_item_title" name="list_item_title" bind>{{name}}</span><br>
             <span class="list_item_caption" name="list_item_caption" bind>{{days}}</span>
         </div>
-        <i class="material-icons list_item_icon selected">done</i>
+        <i class="material-icons list_item_icon selected" no_event_prop>done</i>
     </div>
 `)
 export class ListItem extends Slim {

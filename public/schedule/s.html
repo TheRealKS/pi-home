@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="">
 
 <head>
     <meta charset="utf-8" />
@@ -10,14 +10,14 @@
     <link href="https://fonts.googleapis.com/css?family=Major+Mono+Display" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="../index.css">
-    <link rel="stylesheet" href="schedule.css">
-    <link rel="stylesheet" media="(min-width: 1000px) and (max-width: 2000px)" href="fab.css">
-    <link rel="stylesheet" media="(min-width: 320px) and (max-width: 480px)" href="fab_m.css">
+    <link rel="stylesheet" href="css/schedule.css">
+    <link rel="stylesheet" media="(min-width: 1000px) and (max-width: 2000px)" href="css/fab.css">
+    <link rel="stylesheet" media="(min-width: 320px) and (max-width: 480px)" href="css/fab_m.css">
     <script type="module" src="elements/floater.js"></script>
     <script type="module" src="elements/fab.js"></script>
     <script type="module" src="elements/list-item.js"></script>
-    <script type="module" src="fab.js"></script>
-    <script type="module" src="ui.js"></script>
+    <script type="module" src="editor/fab.js"></script>
+    <script type="module" src="editor/ui.js"></script>
 </head>
 
 <body>
@@ -28,7 +28,7 @@
         </svg>
     </div>
     <div class="no_events" id="no_events">
-        Nog geen instellingen
+        Nog geen programma's
     </div>
     <fab-create></fab-create>
     <div class="list" id="list">
@@ -37,7 +37,8 @@
 <template id="add_programme">
     <h1>Nieuw Programma</h1>
     <span class="label">Naam:</span>
-    <input type="text" />
+    <input id="programme_name" type="text" />
+    <button class="submit_form">TOEVOEGEN</button>
 </template>
 <template id="add_entry_manual">
     <h1>Nieuw schakelpunt - Positie</h1>

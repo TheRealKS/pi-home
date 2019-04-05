@@ -4,7 +4,7 @@ import time
 
 
 
-GPIO.setmode(GPIO.BCM) 
+GPIO.setmode(GPIO.BCM)
 
 
 
@@ -12,55 +12,36 @@ GPIO.setup(23, GPIO.IN)
 
 GPIO.setup(24, GPIO.IN)
 
-
-
-triggers = 0
-
 lastpin = 0
 
-triggers_since_consecutive = 0
+trig = 0
 
+def gpio_callback_1(id):
 
+    global trig
+    global lastpin
+    
+    if lastpin == id:
+        print("Consecutive, since last: " + str(trig))
+        trig = 0
+    else:   
+        trig+=1
+        lastpin = id
 
-def gpio_callback(id):
+    print("Rising")    
 
-    global triggers
+def gpio_callback_2(id):
 
     global lastpin
-
-    global triggers_since_consecutive
-
-    ti = time.time() - triggers_since_consecutive
-
-    if ti > 1:
-
-        print("Direction change")
-
-    triggers += 1
-
-    if lastpin == id:
-
-        print("Consecutive trigger")
-
-    triggers_since_consecutive = time.time()
-
+    global trig
+    trig += 1
     lastpin = id
 
-    triggers_since_consecutive += 1
-
-    print("Detected on pin " + str(id) + ", total triggers = " + str(triggers))
+    print("Falling")
 
 
-
-
-
-GPIO.add_event_detect(23, GPIO.RISING, callback=gpio_callback)
-
-
-
-GPIO.add_event_detect(24, GPIO.RISING, callback=gpio_callback)
-
-
+GPIO.add_event_detect(24, GPIO.RISING, callback=gpio_callback_1, bouncetime=100)
+GPIO.add_event_detect(23, GPIO.RISING, callback=gpio_callback_2, bouncetime=100)
 
 while True:
 

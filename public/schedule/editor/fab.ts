@@ -1,4 +1,4 @@
-import { currentstage, Stage } from './editor.js';
+import { currentstage, Stage, submitForm } from './editor.js';
 
 export var currentaction;
 
@@ -35,6 +35,7 @@ export function selectFabAction(ev) {
         template = document.getElementById("add_programme");
     }
     dom.appendChild(template.content.cloneNode(true));
+    document.getElementsByClassName("submit_form")[0].addEventListener("click", submitForm);
     currentaction = target;
 }
 

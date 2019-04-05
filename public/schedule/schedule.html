@@ -1,18 +1,15 @@
-<html>
+<html lang="en">
 
 <head>
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,400" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Major+Mono+Display" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="../index.css">
-    <link rel="stylesheet" href="schedule.css">
-    <link rel="stylesheet" media="(min-width: 1000px) and (max-width: 2000px)" href="fab.css">
-    <link rel="stylesheet" media="(min-width: 320px) and (max-width: 480px)" href="fab_m.css">
-    <script src="slip.js"></script>
-    <script src="../elements/elements.js"></script>
-    <script src="ui.js"></script>
-    <script src="editor.js"></script>
-    <script src="fab.js"></script>
+    <link rel="stylesheet" href="css/schedule.css">
+    <link rel="stylesheet" href="new.css">
+    <link rel="stylesheet" media="(min-width: 1000px) and (max-width: 2000px)" href="css/fab.css">
+    <link rel="stylesheet" media="(min-width: 320px) and (max-width: 480px)" href="css/fab_m.css">
+    <script src="new.js"></script>
 </head>
 
 <body>
@@ -22,7 +19,7 @@
             <span class="header_text" id="header_text"></span>
         </div>
     </div>
-    <div class="overlay" id="overlay">
+    <div class="overlay" id="overlay" style="display: none;">
         <svg class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
             <circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
         </svg>
@@ -31,8 +28,20 @@
         Nog geen instellingen
     </div>
     <div class="list" id="list">
-
-
+        <div class="list_item_category_header">
+            Regulier
+        </div>
+        <div class="list_item list_item_wicon">
+            <i class="material-icons list_item_icon_nofunc">offline_pin</i>
+            <div>
+                <span class="list_item_title" name="list_item_title" bind>18:20</span><br>
+                <span class="list_item_caption" name="list_item_caption" bind>80%</span>
+            </div>
+            <div class="list_item_actions_alt">
+                <i class="material-icons list_item_icon">edit</i>
+                <i class="material-icons list_item_icon red_hover" id="deletebttn">delete</i>
+            </div>
+        </div>
     </div>
     <div class="newitemcontainer">
             <div class="fab" id="fab">

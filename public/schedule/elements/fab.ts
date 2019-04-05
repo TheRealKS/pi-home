@@ -1,9 +1,9 @@
-///<reference path="../fab.js" />
+///<reference path="../editor/fab.js" />
 
 import {Slim} from '../node_modules/slim-js/Slim.js';
 import {tag, template} from '../node_modules/slim-js/Decorators.js';
-import {Stage, currentstage} from '../editor.js';
-import {currentaction, setCurrentAction, selectFabAction} from '../fab.js';
+import {Stage, currentstage} from '../editor/editor.js';
+import {currentaction, setCurrentAction, selectFabAction} from '../editor/fab.js';
 
 @tag('fab-create')
 @template(`

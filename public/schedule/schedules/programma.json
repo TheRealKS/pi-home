@@ -3,8 +3,7 @@
     "timecreated": "1531579516",
     "lastedited": "1531579568",
     "content": {
-        "mon": [
-            {
+        "mon": [{
                 "type": "auto",
                 "trigger": "dawn",
                 "range": "30",
@@ -47,15 +46,13 @@
                 }
             }
         ],
-        "tue": [
-            {
-                "type": "pos",
-                "time": "15:00",
-                "data": {
-                    "pos": "80"
-                }
+        "tue": [{
+            "type": "pos",
+            "time": "15:00",
+            "data": {
+                "pos": "80"
             }
-        ],
+        }],
         "wed": []
     }
 }

@@ -51,7 +51,7 @@ import { Mode, InterruptEdge } from "./gpiomanager";
             }
             this.libraryinstance.watch(c);
             this.libraryinstance.watch((er, val) => {
-                console.log(val);
+                //console.log(val);
             });
             return this.libraryinstance;
         } 

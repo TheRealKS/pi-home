@@ -18,7 +18,8 @@ import { GPIOInstance } from "./gpioinstance";
     export enum InterruptEdge {
         RISING_EDGE = 'rising',
         FALLING_EDGE = 'falling',
-        EITHER_EDGE = 'either'
+        EITHER_EDGE = 'both',
+        NONE = 'none'
     }
 
 
@@ -33,7 +34,15 @@ import { GPIOInstance } from "./gpioinstance";
         }
 
         createNewInstance(name : string, pin : number, mode : Mode, owner : string, timeout? : number, pullUpDown? : PullMode, interruptEdge? : InterruptEdge) {
-            let libinstance = new Gpio(pin, mode);
+            let libinstance;
+            if (timeout) {
+                if (timeout > 0) 
+                    libinstance = new Gpio(pin, mode, InterruptEdge.NONE, {debounceTimeout: timeout});
+                else    
+                    throw "Debounce time cannot be zero or less";
+            } else {
+                libinstance = new Gpio(pin, mode);
+            }
             let instance = new GPIOInstance(libinstance, owner, name, mode, interruptEdge);
             this.instances[name] = instance;
             return instance;

@@ -15,6 +15,7 @@ export class PositionProvider {
 
     private consecutiverecent : boolean;
     private recentconsecutivetimer : NodeJS.Timer;
+    private pulsetimers : Array<NodeJS.Timer>;
 
     private abouttooperate : boolean = false;
     private invalidtriggers : number = 3;
@@ -30,6 +31,8 @@ export class PositionProvider {
         }
         this.switch1.setEdge(InterruptEdge.RISING_EDGE);
         this.switch2.setEdge(InterruptEdge.RISING_EDGE);
+
+        this.pulsetimers = [];
     }  
     
     /**
@@ -46,21 +49,21 @@ export class PositionProvider {
     }
  
     private processTrigger(er : any, val : any, pin : number) {
-        console.log(val);
+        console.log(pin);
         if (er || val !== 1) {
-            console.error("NOOOO");
-            return;
+            //console.error("NOOOO");
+            //return;
         }
         if (this.abouttooperate && this.invalidtriggers > 0) {
             this.invalidtriggers--;
-        } else {
+        } else if (!this.abouttooperate && this.invalidtriggers === 0) {
             this.abouttooperate = false;
             this.invalidtriggers = 3;
             if (this.lasttriggered) this.validateTrigger(pin); 
-            else this.lasttriggered = pin;
+            this.lasttriggered = pin;
         }
     }
-
+    
     private validateTrigger(trigger : number) {
         if (this.lasttriggered === trigger) {
             if (!this.consecutiverecent) {
@@ -86,17 +89,17 @@ export class PositionProvider {
             this.currentdirection = Direction.UP;
         }
     }
-
+    
     /**
-     * Returns whether or not the provider has been initalized correctly;
+     * Returns whether or not the provider has been initalized correctly, after a quick test run.
      */
     validate(gpio : GPIOAdaptor, callback : Function) {  
         var savedtriggers = this.triggers;  
         gpio.getInstance("relais1").setState(State.HIGH);
-        setTimeout(function() {
+        setTimeout(function(s : number) {
             gpio.getInstance("relais1").setState(State.LOW);
-            callback(this.triggers > savedtriggers);
-        }, 10000);   
+            callback(s);
+        }.bind(null, savedtriggers), 1000);   
     }
 
     /**
@@ -128,7 +131,7 @@ export function initPositionProvider(gpio : GPIOAdaptor) : PositionProvider {
     let provider = new PositionProvider(instance1, instance2, 0, Direction.DOWN);
     provider.register();
     provider.validate(gpio, (result) => {
-        if (!result) {
+        if (result >= this.triggers) {
             console.error("Provider not initialized correctly!");
         } else {
             console.log("Provider initialized");

@@ -6,7 +6,8 @@
         "module": "esnext"
     },
     "include": [
-        "*.ts",
-        "elements/*.ts"
+        "elements/*.ts", 
+        "editor/*.ts",
+        "datastructure/*.ts"
     ]
 }
