@@ -6,6 +6,8 @@ import { List, ListElement } from './list.js';
 import * as Structure from "../datastructure/structure.js";
 import { ListItemSwitch } from '../elements/list-item-switch.js';
 import { ProgrammeManager } from './programmemanager.js';
+import { fabmanager } from './fab.js';
+import { Stage } from './fab.js';
 
 window.onload = function load() {
     fetch('schedules/getschedules.php')
@@ -102,12 +104,14 @@ function openProgramme(ev : Event) {
         let litem = new ListElement<ListItemDay>(entry);
         list.addElement(null, litem);
     }
+    fabmanager.selectStage(Stage.PROGRAMME);
 }
 
 function openProgrammeDay() {
     list.clear();
     let day = this;
     let o = sortProgrammeSwitches(day);
+    fabmanager.selectStage(Stage.DAY);
     if (o.auto.length > 0) {
         let header = new ListCategoryHeader("Automatisch");
         let eelem = new ListElement<ListItemDay>(header);

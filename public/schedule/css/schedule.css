@@ -366,3 +366,9 @@
 .list_dialog_bttn:active {
     background-color: rgb(128, 128, 128);
 }
+
+.inherit_flex {
+    display: inherit;
+    flex-direction: inherit;
+    align-items: inherit;
+}

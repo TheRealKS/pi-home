@@ -1,13 +1,3 @@
-export enum Stage {
-    PROGRAMMES,
-    PROGRAMME,
-    DAY
-}
-
-export var currentstage : Stage = Stage.PROGRAMMES;
-
-export var fab : FabCreate;
-
 export function submitForm() {
     if (currentstage === Stage.PROGRAMMES) {
         uploadProgrammeData(false);
