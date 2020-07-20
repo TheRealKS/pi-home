@@ -1,33 +1,45 @@
+import { ServerMode } from "./servermode";
+import { Server } from "ws";
+
 export class Logger {
-    private enabledValue : boolean;
-    constructor(enabled : boolean)  {
-        this.enabledValue = enabled;
+    private mode : ServerMode;
+    constructor(mode : ServerMode)  {
+        this.mode = mode;
     }
 
-    enable() {
-        this.enabledValue = true;
+    log(message : string, trace? : boolean) {
+        if (this.mode == ServerMode.VERBOSE || this.mode == ServerMode.REALLYVERBOSE) {
+            console.log(message);
+            if (trace) {
+                console.trace();
+            }
+        }
     }
 
-    disable() {
-        this.enabledValue = false;
+    logverbose(message : string, trace? : boolean) {
+        if (this.mode == ServerMode.REALLYVERBOSE) {
+            console.log(message);
+            if (trace) {
+                console.trace();
+            }
+        }
     }
 
-    log(message : string) {
-        if (this.enabledValue)
-        console.log(message);
+    warn(message : string, trace? : boolean) {
+        if (this.mode == ServerMode.ERRORONLY || this.mode == ServerMode.VERBOSE || this.mode == ServerMode.REALLYVERBOSE) {
+            console.warn(message);
+            if (trace) {
+                console.trace();
+            }
+        }
     }
 
-    warn(message : string) {
-        if (this.enabledValue)
-        console.warn(message);
-    }
-
-    error(message : string) {
-        if (this.enabledValue)
-        console.error(message);
-    }
-
-    private sendBackToClient(error : Object) {
-        
+    error(message : string, trace? : boolean) {
+        if (this.mode == ServerMode.ERRORONLY || this.mode == ServerMode.VERBOSE || this.mode == ServerMode.REALLYVERBOSE) {
+            console.error(message);
+            if (trace) {
+                console.trace();
+            }
+        }
     }
 }

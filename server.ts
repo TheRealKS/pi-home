@@ -1,35 +1,53 @@
-/// <reference types="ws" />
+import {ServerMode} from "./util/servermode";
+import {Logger} from "./util/logger";
 
-import * as CommandWorker from "./server/commandworker";
-import { AuthorisationJsonMessage, JsonMessage, CommandJsonMessage } from './server/jsondecoder';
-import { processCommand } from './server/commandworker';
-import { GPIOAdaptor, Mode } from "./gpio/gpiomanager";
-import { AuthcodeCheckReturnValue, checkAuthCode } from "./server/authorisationmanager";
-import { generateAuthorizedJSON, generateNotAuthorizedJSON } from "./server/jsongenerator";
-import { PositionProvider, initPositionProvider } from "./sensor/positionprovider";
-
-const WebSocket = require("ws");
-
-const ws = new WebSocket.Server({ port: 6748 });
-
-global.history = new CommandWorker.CommandHistoryRegistry();
+import { shake128 } from 'js-sha3';
+import WebSocket = require("ws");
+import http = require("http");
 
 interface ConnectionObject {
-    websocket: any,
-    authorised: boolean,
-    ip: any
+
 }
 
-var connections: Map<string, ConnectionObject> = new Map();
+class PIHomeServer {
 
-var gpio = new GPIOAdaptor();
-gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js", 100);
-gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js", 100);
+    private ws : WebSocket.Server;
+    private logger : Logger;
+    private connections : Map<string, ConnectionObject>;
 
-var posprovider : PositionProvider = initPositionProvider(gpio);
+    constructor(port : number, mode : ServerMode) {
+        this.ws = new WebSocket.Server({ port: 6748});
+        this.logger = new Logger(mode);
+        this.logger.log("Server starting...", false);
+        this.initializeServer();
+        this.logger.log("Server started...", false);
+    }
 
-var auxcollection = {pos: posprovider};
+    private initializeServer() {
+        ws.addListener("connection", this.connectionHandler);
+    }
 
+    private connectionHandler(ws : WebSocket, req : http.IncomingMessage) {
+        ws.on("open", () => {
+            let ip = req.connection.remoteAddress;
+            let id = shake128(ip + Date.now(), 128);
+            this.connections.set(id, {ip : ip, authorised : false, connectedTime: Date.now()});
+        });
+        ws.on("message", (message : string) => {
+            var json = JSON.parse(message);
+            if (json.id) {
+                let connObject = this.connections.get(json.id).authorised ?? false;
+                if (connObject) {
+                    processMessage(message);
+                }
+            } else {
+                ws.send(INVALID_MESSAGE);
+            }
+        });
+    }
+}
+
+const ws = new WebSocket.Server({ port: 6748 });
 ws.on("connection", function (ws, req) {
     let ip = req.connection.remoteAddress;
     let id = generateID();
@@ -78,15 +96,6 @@ function continueAuthProcess(returnvalue: AuthcodeCheckReturnValue, ip) {
         connections.get(ip).authorised = false;
         console.log(timestr + "  --  Connection refused from ip " + connections.get(ip).ip + ", code: " + returnvalue.error);
     }
-}
-
-function generateID() {
-    let abc = "abcdefghijklmnopqrstuvwxyz0123456789";
-    let id = "";
-    for (var i = 0; i < 6; i++) {
-        id += Math.floor((Math.random() * abc.length-1));
-    }
-    return id;
 }
 
 console.log("Server started");
