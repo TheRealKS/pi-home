@@ -1,16 +1,9 @@
-import { AuthorisationJsonMessage } from './jsondecoder';
-import { readFile } from 'fs';
-
-export interface AuthcodeCheckReturnValue {
-    authorised : boolean,
-    error? : number,
-    errordetails? : NodeJS.ErrnoException,
-    timeleft? : number
-}
-
-
-export function checkAuthCode(code: AuthorisationJsonMessage, callback : Function, ip) {
-    readFile("auth.json", 'utf8', (err, data) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkAuthCode = void 0;
+const fs_1 = require("fs");
+function checkAuthCode(code, callback, ip) {
+    fs_1.readFile("auth.json", 'utf8', (err, data) => {
         if (err) {
             console.error(err);
             callback({
@@ -26,13 +19,13 @@ export function checkAuthCode(code: AuthorisationJsonMessage, callback : Functio
             let timeleft = element.expires - (Date.now() / 1000);
             if (code.code === element.code) {
                 if (timeleft > 0) {
-                    //Authorised!
                     callback({
                         "authorised": true,
                         "timeleft": timeleft
                     }, ip);
                     return;
-                } else {
+                }
+                else {
                     callback({
                         "authorised": false,
                         "error": 801
@@ -49,3 +42,4 @@ export function checkAuthCode(code: AuthorisationJsonMessage, callback : Functio
     });
     return undefined;
 }
+exports.checkAuthCode = checkAuthCode;

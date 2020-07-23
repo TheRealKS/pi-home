@@ -2,16 +2,20 @@ import {ServerMode} from "./util/servermode";
 import {Logger} from "./util/logger";
 import {INVALID_MESSAGE} from "./util/constants";
 
-import { shake128 } from 'js-sha3';
 import WebSocket = require("ws");
 import http = require("http");
 import fs = require("fs");
 import { CommandWorker } from "./server/commandworker";
+import { Device } from "./devices/device";
+import { Shutters } from "./devices/shutters";
+import { GPIOAdaptor, Mode } from "./gpio/gpiomanager";
+import { generateClientID } from "./util/generator";
 
 interface ConnectionObject {
     ip : string;
     authorised : boolean;
     connectedTime : number;
+    ws : WebSocket;
 }
 
 export interface BaseMessage {
@@ -25,6 +29,8 @@ class PIHomeServer {
     private logger : Logger;
     private connections : Map<string, ConnectionObject>;
     private commandworker: CommandWorker;
+    private gpio : GPIOAdaptor;
+    private devices : Array<Device>;
 
     constructor(serverport : number, mode : ServerMode) {
         this.ws = new WebSocket.Server({ port: serverport});
@@ -37,13 +43,21 @@ class PIHomeServer {
     private initializeServer() {
         this.ws.addListener("connection", this.connectionHandler);
         this.commandworker = new CommandWorker();
+        
+        this.gpio = new GPIOAdaptor();
+        this.gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js", 100);
+        this.gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js", 100);
+
+        let shut = new Shutters(this.gpio);
+        this.devices["shutters"] = shut;
     }
 
     private connectionHandler(ws : WebSocket, req : http.IncomingMessage) {
         ws.on("open", () => {
             let ip = req.connection.remoteAddress;
-            let id = shake128(ip + Date.now(), 128);
-            this.connections.set(id, {ip : ip, authorised : false, connectedTime: Date.now()});
+            let id = generateClientID(ip);
+            this.connections.set(id, {ip : ip, authorised : false, connectedTime: Date.now(), ws: ws});
+            ws.send(id);
         });
         ws.on("message", (message : string) => {
             var json = JSON.parse(message);
@@ -57,43 +71,50 @@ class PIHomeServer {
             }
         });
     }
-}
-
-function processMessage(message, ip) {
-    let rawjson = <JsonMessage>message;
-    switch (rawjson.type) {
-        case "command":
-            if (!connections.get(ip).authorised) break;
-            let commandmessage: CommandJsonMessage = <CommandJsonMessage>rawjson;
-            processCommand(commandmessage, ip, gpio, auxcollection);
-            break;
-        case "auth":
-            let authmessage: AuthorisationJsonMessage = <AuthorisationJsonMessage>rawjson;
-            checkAuthCode(authmessage, continueAuthProcess, ip);
-        default:
-            break;
+    
+    /**
+     * Sends a message to a client. Consider if it is really necessary to use
+     * @param message The message to be sent
+     * @param id Id of the client
+     * @returns True if id exists, false otherwise
+     */
+    send(message : string, id : string){
+        if (this.connections.has(id)) {
+            this.connections.get(id).ws.send(message);
+            return true;
+        }
+        return false;
     }
-}
 
-function continueAuthProcess(returnvalue: AuthcodeCheckReturnValue, ip) {
-    let date = new Date();
-    let timestr = date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear() + "||" + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-    if (returnvalue.authorised === true) {
-        connections.get(ip).websocket.send(generateAuthorizedJSON(returnvalue.timeleft));
-        connections.get(ip).authorised = true;
-        console.log(timestr + "  --  New client authorized from ip " + connections.get(ip).ip);
-    } else {
-        if (returnvalue.errordetails)
-        connections.get(ip).websocket.send(generateNotAuthorizedJSON(returnvalue.error, returnvalue.errordetails.message));
-        else
-        connections.get(ip).websocket.send(generateNotAuthorizedJSON(returnvalue.error, undefined));
-        connections.get(ip).websocket.close(); //Not authorised
-        connections.get(ip).authorised = false;
-        console.log(timestr + "  --  Connection refused from ip " + connections.get(ip).ip + ", code: " + returnvalue.error);
+    /**
+     * When a client connects, they may have a valid session token. In that case, the connection id needs to be replaced
+     * @param oldid Old id
+     * @param newid New id
+     * @returns True if oldid exists, false otherwise
+     */
+    replaceID(oldid : string, newid : string) {
+        if (this.connections.has(oldid)) {
+            let connobject = this.connections.get(oldid);
+            this.connections.set(newid, connobject);
+            this.connections.delete(oldid);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get Devices
+     */
+    getDevices() {
+        if (this.devices.length > 0)
+            return this.devices;
+        else 
+            return null;
     }
 }
 
 //Initialisation
 const data = fs.readFileSync('./wsport.txt', {encoding:'utf8', flag:'r'}); 
 
-const server = new PIHomeServer(parseInt(data), ServerMode.PRODUCTION);
+const server : PIHomeServer = new PIHomeServer(parseInt(data), ServerMode.PRODUCTION);
+export default server;

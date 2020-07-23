@@ -19,6 +19,13 @@ export function generateNotAuthorizedJSON(error : number, errordetails? : string
     return JSON.stringify(o);
 }
 
+export function generateSessionTokenJSON(id : string, token : string) {
+    let o = createBaseJSON("SESSION");
+    o["id"] = id;
+    o["token"] = token;
+    return JSON.stringify(o);
+}
+
 //types: normal, critical
 export function generateErrorJSON(error : string, code? : number, type : string = "normal") {
     let o = createBaseJSON("error");

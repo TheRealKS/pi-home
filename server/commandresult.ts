@@ -1,3 +1,6 @@
-export class CommandResult {
-    
+export enum CommandResult {
+    SUCCESS,
+    FAILURE,
+    ERROR,
+    UNKNOWN
 }

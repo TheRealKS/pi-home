@@ -11,7 +11,7 @@
                 $r = mt_rand(0, 35);
                 $code .= $chars[$r];
             }
-            $expiry = time() + 86400;
+            $expiry = time() * 1000 + 3600000;
             $newentry = [
                 "code" => $code,
                 "expires" => $expiry
