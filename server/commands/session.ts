@@ -13,7 +13,7 @@ interface SessionCMD extends BaseMessage {
 }
 
 /**
- * Create session token
+ * Check session token
  */
 export class SESSION implements ICommand {
     command: string = "SESSION";

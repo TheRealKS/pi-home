@@ -5,6 +5,7 @@
 /server/**/*.js
 /sensor/**/*.js
 /auth.json
+/token.json
 /public/schedule/*.js
 /public/schedule/**/*.js
 /.vscode

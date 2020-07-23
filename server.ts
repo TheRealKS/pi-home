@@ -8,8 +8,9 @@ import fs = require("fs");
 import { CommandWorker } from "./server/commandworker";
 import { Device } from "./devices/device";
 import { Shutters } from "./devices/shutters";
-import { GPIOAdaptor, Mode } from "./gpio/gpiomanager";
+//import { GPIOAdaptor, Mode } from "./gpio/gpiomanager";
 import { generateClientID } from "./util/generator";
+import { isThisSecond } from "date-fns";
 
 interface ConnectionObject {
     ip : string;
@@ -27,10 +28,10 @@ class PIHomeServer {
 
     private ws : WebSocket.Server;
     private logger : Logger;
-    private connections : Map<string, ConnectionObject>;
+    private connections : Map<string, ConnectionObject> = new Map();
     private commandworker: CommandWorker;
     private gpio : GPIOAdaptor;
-    private devices : Array<Device>;
+    private devices : Array<Device> = [];
 
     constructor(serverport : number, mode : ServerMode) {
         this.ws = new WebSocket.Server({ port: serverport});
@@ -41,31 +42,39 @@ class PIHomeServer {
     }
 
     private initializeServer() {
-        this.ws.addListener("connection", this.connectionHandler);
+        this.ws.addListener("connection", this.connectionHandler.bind(this));
         this.commandworker = new CommandWorker();
         this.commandworker.intializeCommands();
         
-        this.gpio = new GPIOAdaptor();
-        this.gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js", 100);
-        this.gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js", 100);
+        //this.gpio = new GPIOAdaptor();
+        //this.gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js", 100);
+        //this.gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js", 100);
 
-        let shut = new Shutters(this.gpio);
-        this.devices["shutters"] = shut;
+        //let shut = new Shutters(this.gpio);
+        //this.devices["shutters"] = shut;
     }
 
     private connectionHandler(ws : WebSocket, req : http.IncomingMessage) {
-        ws.on("open", () => {
-            let ip = req.connection.remoteAddress;
-            let id = generateClientID(ip);
-            this.connections.set(id, {ip : ip, authorised : false, connectedTime: Date.now(), ws: ws});
-            ws.send(id);
-        });
+        let ip = req.connection.remoteAddress;
+        let id = generateClientID(ip);
+        this.connections.set(id, {ip : ip, authorised : false, connectedTime: Date.now(), ws: ws});
+        ws.send(id);
+
         ws.on("message", (message : string) => {
-            var json = JSON.parse(message);
+            try {
+                var json = JSON.parse(message);
+            } catch (err) {
+                ws.send(INVALID_MESSAGE);
+                return;
+            }
             if (json.id && json.type) {
                 let connObject = this.connections.get(json.id).authorised ?? false;
                 if (connObject) {
                     this.commandworker.processCommand(json);
+                } else {
+                    if (json.type == "AUTH" || json.type == "SESSION") {
+                        this.commandworker.processCommand(json);
+                    }
                 }
             } else {
                 ws.send(INVALID_MESSAGE); 

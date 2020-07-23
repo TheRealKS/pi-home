@@ -25,7 +25,7 @@ export class AUTH implements ICommand {
             for (var i = 0; i < j.length; i++) {
                 let element = j[i];
                 let timeleft = element.expires - (Date.now());
-                if (cmddata.token === element.code && timeleft > 0) {
+                if (cmddata.token === element.token && timeleft > 0) {
                     let token = generateSessionToken(cmddata.id, timeleft);
                     delete j[i];
                     this.saveToken(token, cmddata.id, j);
