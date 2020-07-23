@@ -43,6 +43,7 @@ class PIHomeServer {
     private initializeServer() {
         this.ws.addListener("connection", this.connectionHandler);
         this.commandworker = new CommandWorker();
+        this.commandworker.intializeCommands();
         
         this.gpio = new GPIOAdaptor();
         this.gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js", 100);
