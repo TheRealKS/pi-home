@@ -8,3 +8,4 @@
 /public/schedule/*.js
 /public/schedule/**/*.js
 /.vscode
+/out
