@@ -103,6 +103,16 @@ class PIHomeServer {
         return false;
     }
 
+    setAuthorised(id : string, value : boolean) {
+        if (this.connections.has(id)) {
+            let connobject = this.connections.get(id);
+            connobject.authorised = value;
+            this.connections.set(id, connobject);
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Get Devices
      */
