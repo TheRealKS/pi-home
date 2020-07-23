@@ -1,12 +1,22 @@
 import {ServerMode} from "./util/servermode";
 import {Logger} from "./util/logger";
+import {INVALID_MESSAGE} from "./util/constants";
 
 import { shake128 } from 'js-sha3';
 import WebSocket = require("ws");
 import http = require("http");
+import fs = require("fs");
+import { CommandWorker } from "./server/commandworker";
 
 interface ConnectionObject {
+    ip : string;
+    authorised : boolean;
+    connectedTime : number;
+}
 
+export interface BaseMessage {
+    id : string;
+    type : string;
 }
 
 class PIHomeServer {
@@ -14,9 +24,10 @@ class PIHomeServer {
     private ws : WebSocket.Server;
     private logger : Logger;
     private connections : Map<string, ConnectionObject>;
+    private commandworker: CommandWorker;
 
-    constructor(port : number, mode : ServerMode) {
-        this.ws = new WebSocket.Server({ port: 6748});
+    constructor(serverport : number, mode : ServerMode) {
+        this.ws = new WebSocket.Server({ port: serverport});
         this.logger = new Logger(mode);
         this.logger.log("Server starting...", false);
         this.initializeServer();
@@ -24,7 +35,8 @@ class PIHomeServer {
     }
 
     private initializeServer() {
-        ws.addListener("connection", this.connectionHandler);
+        this.ws.addListener("connection", this.connectionHandler);
+        this.commandworker = new CommandWorker();
     }
 
     private connectionHandler(ws : WebSocket, req : http.IncomingMessage) {
@@ -35,34 +47,17 @@ class PIHomeServer {
         });
         ws.on("message", (message : string) => {
             var json = JSON.parse(message);
-            if (json.id) {
+            if (json.id && json.type) {
                 let connObject = this.connections.get(json.id).authorised ?? false;
                 if (connObject) {
-                    processMessage(message);
+                    this.commandworker.processCommand(json);
                 }
             } else {
-                ws.send(INVALID_MESSAGE);
+                ws.send(INVALID_MESSAGE); 
             }
         });
     }
 }
-
-const ws = new WebSocket.Server({ port: 6748 });
-ws.on("connection", function (ws, req) {
-    let ip = req.connection.remoteAddress;
-    let id = generateID();
-    connections.set(id, { websocket: ws, authorised: false, ip: ip})
-    ws.on('message', msg => {
-        try {
-            var json = JSON.parse(msg);
-            processMessage(json, id);
-        } catch (error) {
-            console.log(error);
-            //TODO: response to client
-            return;
-        }
-    });
-});
 
 function processMessage(message, ip) {
     let rawjson = <JsonMessage>message;
@@ -98,4 +93,7 @@ function continueAuthProcess(returnvalue: AuthcodeCheckReturnValue, ip) {
     }
 }
 
-console.log("Server started");
+//Initialisation
+const data = fs.readFileSync('./wsport.txt', {encoding:'utf8', flag:'r'}); 
+
+const server = new PIHomeServer(parseInt(data), ServerMode.PRODUCTION);

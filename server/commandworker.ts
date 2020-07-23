@@ -13,6 +13,9 @@ import {
     closestTo
 } from "date-fns";
 import { PositionProvider } from "../sensor/positionprovider";
+import { ICommand } from "./ICommand";
+import { BaseMessage } from "../server";
+import { CommandResult } from "./commandresult";
 
 interface AuxiliaryCollection {
     pos : PositionProvider
@@ -90,6 +93,28 @@ export class CommandHistoryRegistry {
             throw "Cannot registter second listener for event";
         }
         this.listeners[eventtype] = callback;
+    }
+}
+
+export class CommandWorker {
+
+    commands : Map<string, ICommand> = new Map();
+
+    constructor() {
+
+    }
+
+    intializeCommands() {
+
+    }
+
+    processCommand(json : BaseMessage) {
+        if (this.commands.has(json.type)) {
+            let handler : ICommand = this.commands.get(json.type);
+            let cmdresult : CommandResult = handler.handle(json);
+        } else {
+            return 
+        }
     }
 }
 
