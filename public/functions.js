@@ -8,31 +8,44 @@ var kicked = false;
 
 function load() {
     document.getElementById("bttn_edit_programme").addEventListener("click", () => {
-        window.location.replace("schedule/schedule.html"); 
+        window.location.replace("schedule/schedule.html");
     });
 
-    if (localStorage.getItem("session_token") && localStorage.getItem("session_token_expiry")) {
-        var time = Date.now();
-        if (localStorage.getItem("session_token_expiry") - time > 0) {
-            fetch("getwsport.php").then(function(res) {
-                if (res.ok) {
+    if (!sessionStorage.getItem("serverip")) {
+        fetch("getwsport.php")
+            .then(res => {
+                if (res.ok)
                     return res.text();
-                } else {
-                    alert("error");
-                }
-            }).then(function(txt) {
-                if (txt === "") {
-                    alert("error");
-                } else {
-                    wsport = txt;
-                }
+            })
+            .then(txt => {
+                sessionStorage.setItem("serverip", txt);
+                load();
             });
+    } else {
+        if ((localStorage.getItem("session_token") && localStorage.getItem("session_token_expiry")) || localStorage.getItem("auth_token")) {
+            var time = Date.now();
+            if (localStorage.getItem("session_token_expiry") - time > 0 || localStorage.getItem("auth_token")) {
+                fetch("getwsport.php").then(function (res) {
+                    if (res.ok) {
+                        return res.text();
+                    } else {
+                        alert("error");
+                    }
+                }).then(function (txt) {
+                    if (txt === "") {
+                        alert("error");
+                    } else {
+                        wsport = txt;
+                        websocket();
+                    }
+                });
+            } else {
+                localStorage.clear();
+                showPinScreen();
+            }
         } else {
-            localStorage.clear();
             showPinScreen();
         }
-    } else {
-        showPinScreen();
     }
 }
 
@@ -41,30 +54,30 @@ window.onload = load;
 function go() {
     document.getElementById("spinner").style.opacity = "0";
     document.getElementById("connectingtextcontainer").style.opacity = "0";
-    setTimeout(function() {
+    setTimeout(function () {
         document.getElementById("connectingdiv").style.marginTop = "-100vh";
         document.getElementById("controldiv").style.display = "block";
     }, 500);
 }
 
 function websocket() {
-    var timer = setInterval(function() {
+    var timer = setInterval(function () {
         time++;
     }, 1);
     if (window.WebSocket) {
         var url = "ws://" + wsport;
         ws = new WebSocket(url);
-        ws.onmessage = function(event) {
+        ws.onmessage = function (event) {
             if (wsstage == 0) {
                 wsid = event.data;
                 wsstage++;
-            } else if (wsstage == 1) {
                 if (localStorage.getItem("auth_token")) {
                     sendSessionTokenRequest();
                 } else {
                     sendSessionTokenReAuthRequest();
                 }
                 wsstage++;
+            } else if (wsstage == 1) {
             } else if (wsstage == 2) {
                 var json = JSON.parse(event.data);
                 if (json.type === "AUTH") {
@@ -74,7 +87,7 @@ function websocket() {
                         clearInterval(timer);
                         console.log("Connected! Took " + time + "ms");
                         go();
-                        localStorage.removeItem("auht_token");
+                        localStorage.removeItem("auth_token");
                         wsstage++;
                     } else {
                         alert("Not connected!");
@@ -83,6 +96,7 @@ function websocket() {
                     if (json.id === wsid) {
                         localStorage.setItem("session_token", json.token);
                         localStorage.setItem("session_token_expiry", json.expiry);
+                        localStorage.setItem("session_id", wsid);
                         sendSessionTokenAuthRequest();
                     } else {
                         alert("error");
@@ -100,18 +114,18 @@ function websocket() {
                         }
                         var fab = document.getElementById("fab");
                         fab.classList += " spin";
-                        setTimeout(function() {
+                        setTimeout(function () {
                             fab.classList = "material-button-floating-text material-icons";
                         }, 500);
                     }
                 }
             }
         };
-        ws.onclose = function(event) {
+        ws.onclose = function (event) {
             //alert("disconnected!");
-            if (!kicked) {}
+            if (!kicked) { }
         };
-        ws.onerror = function(event) {
+        ws.onerror = function (event) {
             //alert("error!");
             connectionError("Websocket Server disconnected");
             console.error(event);
@@ -124,7 +138,7 @@ function sendSessionTokenAuthRequest() {
     var ajson = {
         type: "SESSION",
         token: sestoken,
-        id: sesid
+        id: wsid
     };
     ws.send(JSON.stringify(ajson));
 }
@@ -135,8 +149,8 @@ function sendSessionTokenReAuthRequest() {
     var ajson = {
         type: "SESSION",
         token: sestoken,
-        id: sesid,
-        oldid: id
+        id: wsid,
+        oldid: sesid
     };
     ws.send(JSON.stringify(ajson));
 }
@@ -191,12 +205,12 @@ function connectionError(err) {
     document.getElementById("errortext").innerHTML += err;
 }
 
-(function(window, $) {
+(function (window, $) {
 
-    $(function() {
+    $(function () {
 
 
-        $('.ripple').on('click', function(event) {
+        $('.ripple').on('click', function (event) {
             event.preventDefault();
 
             var $div = $('<div/>'),
@@ -219,7 +233,7 @@ function connectionError(err) {
                 })
                 .appendTo($(this));
 
-            window.setTimeout(function() {
+            window.setTimeout(function () {
                 $div.remove();
             }, 2000);
         });

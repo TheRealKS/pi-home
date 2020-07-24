@@ -25,10 +25,10 @@ export class SESSION implements ICommand {
             for (var i = 0; i < j.length; i++) {
                 let element = j[i];
                 let timeleft = element.expires - (Date.now());
-                if (cmddata.token === element.code && timeleft > 0) {
+                if (cmddata.token === element.token && timeleft > 0) {
                     let reply = generateAuthorizedJSON(timeleft);
                     if (!server.send(reply, cmddata.id)) {
-                        server.replaceID(cmddata.oldid, cmddata.id);
+                        server.replaceID(cmddata.id, cmddata.oldid);
                         server.send(reply, cmddata.id);
                     } 
                     server.setAuthorised(cmddata.id, true);

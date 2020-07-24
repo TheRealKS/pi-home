@@ -21,15 +21,14 @@ export class AUTH implements ICommand {
     handle(cmddata: AuthCMD): CommandResult {
         let prom = promisify(readFile);
         this.readAuthFile(prom).then(data => {
-            let j = JSON.parse(data);
+            let j : Array<any> = JSON.parse(data);
             for (var i = 0; i < j.length; i++) {
                 let element = j[i];
                 let timeleft = element.expires - (Date.now());
                 if (cmddata.token === element.token && timeleft > 0) {
                     let token = generateSessionToken(cmddata.id, timeleft);
-                    delete j[i];
-                    let expiry = this.saveToken(token, cmddata.id, j);
-                    server.send(generateSessionTokenJSON(cmddata.id, token, expiry), cmddata.id);
+                    j.splice(i);
+                    this.saveToken(prom, token, cmddata.id, j).then(expiry => server.send(generateSessionTokenJSON(cmddata.id, token, expiry), cmddata.id));
                 } else {
                     server.send(generateNotAuthorizedJSON(801), cmddata.id);
                 }
@@ -38,18 +37,16 @@ export class AUTH implements ICommand {
         return CommandResult.UNKNOWN;
     }
 
-    saveToken(token, id, authtokendata) {
-        readFile(SESSIONTOKENLOCATION, 'utf-8', (err, data) => {
-            if (err) {
-                console.error(err);
-            } else {
-                let j = JSON.parse(data);
-                j.push({id: id, token: token, expires: Date.now() + 86400000});
-                writeFile(SESSIONTOKENLOCATION, JSON.stringify(j), err => console.error(err));
-            }
+    async saveToken(func, token, id, authtokendata) {
+        let write = promisify(writeFile);
+        let expiry = Date.now() + 86400000;
+        await func(SESSIONTOKENLOCATION, 'utf-8').then(async data => {
+            let j = JSON.parse(data);
+                j.push({id: id, token: token, expires: expiry});
+                await write(SESSIONTOKENLOCATION, JSON.stringify(j));
         });
-        writeFile(TOKENLOCATION, JSON.stringify(authtokendata), err => console.error(err));
-        return Date.now() + 86400000;
+        await write(TOKENLOCATION, JSON.stringify(authtokendata));
+        return expiry;
     }
 
     async readAuthFile(func : any) {

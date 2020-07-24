@@ -8,7 +8,7 @@ import fs = require("fs");
 import { CommandWorker } from "./server/commandworker";
 import { Device } from "./devices/device";
 import { Shutters } from "./devices/shutters";
-//import { GPIOAdaptor, Mode } from "./gpio/gpiomanager";
+import { GPIOAdaptor, Mode } from "./gpio/gpiomanager";
 import { generateClientID } from "./util/generator";
 import { isThisSecond } from "date-fns";
 
@@ -46,12 +46,12 @@ class PIHomeServer {
         this.commandworker = new CommandWorker();
         this.commandworker.intializeCommands();
         
-        //this.gpio = new GPIOAdaptor();
-        //this.gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js", 100);
-        //this.gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js", 100);
+        this.gpio = new GPIOAdaptor();
+        this.gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js", 100);
+        this.gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js", 100);
 
-        //let shut = new Shutters(this.gpio);
-        //this.devices["shutters"] = shut;
+        let shut = new Shutters(this.gpio);
+        this.devices["shutters"] = shut;
     }
 
     private connectionHandler(ws : WebSocket, req : http.IncomingMessage) {
@@ -68,7 +68,9 @@ class PIHomeServer {
                 return;
             }
             if (json.id && json.type) {
-                let connObject = this.connections.get(json.id).authorised ?? false;
+                let connObject = (this.connections.get(json.id).authorised !== null && this.connections.get(json.id).authorised !== undefined) ?
+                this.connections.get(json.id).authorised :
+                false;
                 if (connObject) {
                     this.commandworker.processCommand(json);
                 } else {

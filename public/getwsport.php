@@ -1,6 +1,6 @@
 <?php
-if (file_exists("../wsport.txt")) {
-    $port = file_get_contents("../wsport.txt");
+if (file_exists("./serverip.txt")) {
+    $port = file_get_contents("./serverip.txt");
     echo $port;
 } else {
     echo "";

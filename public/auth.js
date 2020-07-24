@@ -17,6 +17,17 @@ window.onkeydown = function(e) {
 
 function setPrePin() {
     document.getElementById("pin").value = "----";
+
+    if (!sessionStorage.getItem("serverip")) {
+        fetch("getwsport.php")
+        .then(res => {
+            if (res.ok)
+                return res.text();
+        })
+        .then(txt => {
+            sessionStorage.setItem("serverip", txt);
+        });
+    }
 }
 
 function inputNumber(number) {
@@ -73,7 +84,8 @@ function createSendable(pin) {
 function checkPin() {
     if (code.length == 4) {
     var upin = createSendable(code);
-    fetch("getcorrectpin.php?pin=" + JSON.stringify(upin)).then(function(res) {
+    let url = "http://" + sessionStorage.getItem("serverip").split(":")[0] + "/pi-home/getcorrectpin.php?pin=" + JSON.stringify(upin);
+    fetch(url).then(function(res) {
             if (res.ok) {
                 return res.text();
             } else {
@@ -83,8 +95,8 @@ function checkPin() {
         .then(function(pin) {
             if (pin !== "0") {
                 var date = new Date();
-                sessionStorage.timeauthorized = date.getTime();
-                sessionStorage.authorized = pin;
+                localStorage.timeauthorized = date.getTime();
+                localStorage.auth_token = pin;
                 window.location.replace("index.html");
             } else {
                 var pin = document.getElementById("pin");
