@@ -1,5 +1,7 @@
 var ws;
 var wsport;
+var wsstage = 0;
+var wsid;
 const daymilliseconds = 86400000;
 var time = 0;
 var kicked = false;
@@ -8,9 +10,10 @@ function load() {
     document.getElementById("bttn_edit_programme").addEventListener("click", () => {
         window.location.replace("schedule/schedule.html"); 
     });
-    if (sessionStorage.authorized && sessionStorage.timeauthorized) {
-        var date = new Date();
-        if (date.getTime() - sessionStorage.timeauthorized < daymilliseconds) {
+
+    if (localStorage.getItem("session_token") && localStorage.getItem("session_token_expiry")) {
+        var time = Date.now();
+        if (localStorage.getItem("session_token_expiry") - time > 0) {
             fetch("getwsport.php").then(function(res) {
                 if (res.ok) {
                     return res.text();
@@ -18,17 +21,14 @@ function load() {
                     alert("error");
                 }
             }).then(function(txt) {
-                if (!isNaN(txt)) {
-                    wsport = parseInt(txt);
-                    setTimeout(websocket, 1000);
-                } else if (txt === "") {
+                if (txt === "") {
                     alert("error");
                 } else {
-                    alert("error");
+                    wsport = txt;
                 }
             });
         } else {
-            sessionStorage.clear();
+            localStorage.clear();
             showPinScreen();
         }
     } else {
@@ -52,37 +52,58 @@ function websocket() {
         time++;
     }, 1);
     if (window.WebSocket) {
-        var url = "ws://" + document.URL.substr(7).split('/')[0] + ":" + wsport;
+        var url = "ws://" + wsport;
         ws = new WebSocket(url);
-        ws.onopen = function(event) {
-            checkAuthCode();
-        };
         ws.onmessage = function(event) {
-            var json = JSON.parse(event.data);
-            if (json.valid !== undefined) {
-                if (json.valid) {
-                    clearInterval(timer);
-                    console.log("Connected! Took " + time + "ms");
-                    go();
+            if (wsstage == 0) {
+                wsid = event.data;
+                wsstage++;
+            } else if (wsstage == 1) {
+                if (localStorage.getItem("auth_token")) {
+                    sendSessionTokenRequest();
                 } else {
-                    alert("authorization code unknown");
-                    kicked = true;
-                    ws.close();
+                    sendSessionTokenReAuthRequest();
                 }
-            }
-            if (json.type === "lastcommand") {
-                //Lastcommand logic
-                if (json.lastcommand !== "stop") {
-                    if (json.lastcommand = "up") {
-                        document.getElementById("position").innerHTML = "Positie: 0% (op)";
+                wsstage++;
+            } else if (wsstage == 2) {
+                var json = JSON.parse(event.data);
+                if (json.type === "AUTH") {
+                    //Received already authorised
+                    if (json.valid) {
+                        wsid = localStorage.getItem("session_id");
+                        clearInterval(timer);
+                        console.log("Connected! Took " + time + "ms");
+                        go();
+                        localStorage.removeItem("auht_token");
+                        wsstage++;
                     } else {
-                        document.getElementById("position").innerHTML = "Positie: 100% (neer)";
+                        alert("Not connected!");
                     }
-                    var fab = document.getElementById("fab");
-                    fab.classList += " spin";
-                    setTimeout(function() {
-                        fab.classList = "material-button-floating-text material-icons";
-                    }, 500);
+                } else if (json.type === "SESSION") {
+                    if (json.id === wsid) {
+                        localStorage.setItem("session_token", json.token);
+                        localStorage.setItem("session_token_expiry", json.expiry);
+                        sendSessionTokenAuthRequest();
+                    } else {
+                        alert("error");
+                    }
+                }
+            } else {
+                var json = JSON.parse(event.data);
+                if (json.type === "lastcommand") {
+                    //Lastcommand logic
+                    if (json.lastcommand !== "stop") {
+                        if (json.lastcommand = "up") {
+                            document.getElementById("position").innerHTML = "Positie: 0% (op)";
+                        } else {
+                            document.getElementById("position").innerHTML = "Positie: 100% (neer)";
+                        }
+                        var fab = document.getElementById("fab");
+                        fab.classList += " spin";
+                        setTimeout(function() {
+                            fab.classList = "material-button-floating-text material-icons";
+                        }, 500);
+                    }
                 }
             }
         };
@@ -96,6 +117,38 @@ function websocket() {
             console.error(event);
         };
     }
+}
+
+function sendSessionTokenAuthRequest() {
+    let sestoken = localStorage.getItem("session_token");
+    var ajson = {
+        type: "SESSION",
+        token: sestoken,
+        id: sesid
+    };
+    ws.send(JSON.stringify(ajson));
+}
+
+function sendSessionTokenReAuthRequest() {
+    let sestoken = localStorage.getItem("session_token");
+    let sesid = localStorage.getItem("session_id");
+    var ajson = {
+        type: "SESSION",
+        token: sestoken,
+        id: sesid,
+        oldid: id
+    };
+    ws.send(JSON.stringify(ajson));
+}
+
+function sendSessionTokenRequest() {
+    let authtoken = localStorage.getItem("auth_token");
+    var ajson = {
+        type: "AUTH",
+        token: authtoken,
+        id: wsid
+    };
+    ws.send(JSON.stringify(ajson));
 }
 
 function checkAuthCode() {

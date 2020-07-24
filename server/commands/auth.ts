@@ -28,8 +28,8 @@ export class AUTH implements ICommand {
                 if (cmddata.token === element.token && timeleft > 0) {
                     let token = generateSessionToken(cmddata.id, timeleft);
                     delete j[i];
-                    this.saveToken(token, cmddata.id, j);
-                    server.send(generateSessionTokenJSON(cmddata.id, token), cmddata.id);
+                    let expiry = this.saveToken(token, cmddata.id, j);
+                    server.send(generateSessionTokenJSON(cmddata.id, token, expiry), cmddata.id);
                 } else {
                     server.send(generateNotAuthorizedJSON(801), cmddata.id);
                 }
@@ -49,6 +49,7 @@ export class AUTH implements ICommand {
             }
         });
         writeFile(TOKENLOCATION, JSON.stringify(authtokendata), err => console.error(err));
+        return Date.now() + 86400000;
     }
 
     async readAuthFile(func : any) {
