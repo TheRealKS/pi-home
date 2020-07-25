@@ -2,17 +2,16 @@
 
 import {Slim} from '../node_modules/slim-js/Slim.js';
 import {tag, template} from '../node_modules/slim-js/Decorators.js';
-import {Stage, currentstage} from '../editor/editor.js';
-import {currentaction, setCurrentAction, selectFabAction} from '../editor/fab.js';
+import {Stage, fabmanager, currentaction, setCurrentAction, selectFabAction} from '../editor/fab.js';
+import { FabManager } from '../editor/fab.js';
+import { initializeFab } from '../editor/fab.js';
 
 @tag('fab-create')
 @template(`
     <div class="newitemcontainer">
         <div class="fab" id="fab">
             <div class="fab_action" s:id="fab_actions">
-                <div class="material-icons fab_action_bttn" bind="add_entry_manual">import_export</div>
-                <div class="material-icons fab_action_bttn" bind="add_entry_light">brightness_auto</div>
-                <div class="material-icons fab_action_bttn" bind="add_entry_event">brightness_medium</div>
+                <div class="material-icons fab_action_bttn selected" bind="add_programme">calendar_today</div>
             </div>
             <div class="fab_interact">
                 <div class="material-icons fab_interact_bttn" s:id="expand_bttn">add</div>
@@ -22,14 +21,11 @@ import {currentaction, setCurrentAction, selectFabAction} from '../editor/fab.js
         </div>
     </div>
 `)
-class FabCreate extends Slim {
+export class FabCreate extends Slim {
+    created : boolean = false;
+    fab_actions : HTMLElement;
+    expand_bttn : HTMLElement;
     onRender() {
-        if (currentstage === Stage.PROGRAMMES) {
-            this.fab_actions.innerHTML = `
-            <div class="material-icons fab_action_bttn selected" bind="add_programme">schedule</div>
-            `;
-            setCurrentAction(this.fab_actions.firstElementChild);
-        }
         this.expand_bttn.addEventListener('click', (ev) => {
             if (!currentaction) {
                 return;
@@ -42,15 +38,25 @@ class FabCreate extends Slim {
         for (var child of children) { 
             child.addEventListener('click', selectFabAction);
         }
-        if (currentstage === Stage.PROGRAMMES) {
-            this.fab_actions.firstElementChild.click();
+        if (!this.created) {
+            this.created = true;
+            setCurrentAction(this.fab_actions.firstElementChild);
+            initializeFab(this);
         }
+    }
+
+    reRender(elements : Array<HTMLElement>) {   
+        this.fab_actions.innerHTML ="";
+        for (var e of elements) {
+            this.fab_actions.appendChild(e);
+        }
+        this.onRender();
     }
 }
 
 Slim.plugin('create', element => {
     if (element.localName === "fab-create") {
-        if (currentstage === Stage.PROGRAMMES) {
+        if (fabmanager.currentstage === Stage.PROGRAMMES) {
             element.fab_actions.innerHTML = `
                 <div class="material-icons fab_action_bttn selected" bind="add_programme">agenda</div>
             `;

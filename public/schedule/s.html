@@ -16,6 +16,7 @@
     <script type="module" src="elements/floater.js"></script>
     <script type="module" src="elements/fab.js"></script>
     <script type="module" src="elements/list-item.js"></script>
+    <script type="module" src="elements/add-entry-man.js"></script>
     <script type="module" src="editor/fab.js"></script>
     <script type="module" src="editor/ui.js"></script>
 </head>
@@ -40,23 +41,17 @@
     <input id="programme_name" type="text" />
     <button class="submit_form">TOEVOEGEN</button>
 </template>
-<template id="add_entry_manual">
-    <h1>Nieuw schakelpunt - Positie</h1>
-    <span class="label">Op tijdstip:</span><span class="timedisplay">33:33</span><br>
-    <span class="label">Ga naar:</span><span class="timedisplay">80%</span><br>
-    <span class="lable">Doe dit op:</span>
-    <div class="days" id="days">
-        <div class="timedisplay fab_action_bttn">m</div>
-        <div class="timedisplay fab_action_bttn">di</div>
-        <div class="timedisplay fab_action_bttn">w</div>
-        <div class="timedisplay fab_action_bttn">do</div>
-        <div class="timedisplay fab_action_bttn">v</div>
-        <div class="timedisplay fab_action_bttn">za</div>
-        <div class="timedisplay fab_action_bttn">zo</div>
-    </div><br>
-    <span class="label">Met willekeurige vertraging binnen</span><span class="timedisplay">10 minuten</span>
+<template id="add_day">
+<button class="submit_form">TOEVOEGEN</button>
 </template>
-<template id="add_entry_light"></template>
-<template id="add_entry_event"></template>
+<template id="add_entry_manual">
+    <add-entry-man class="inherit_flex"></add-entry-man>
+</template>
+<template id="add_entry_sensor">
+<button class="submit_form">TOEVOEGEN</button>
+</template>
+<template id="add_entry_auto">
+<button class="submit_form">TOEVOEGEN</button>
+</template>
 
 </html>
