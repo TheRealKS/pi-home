@@ -84,7 +84,7 @@ function createSendable(pin) {
 function checkPin() {
     if (code.length == 4) {
     var upin = createSendable(code);
-    let url = "http://" + sessionStorage.getItem("serverip").split(":")[0] + "/pi-home/getcorrectpin.php?pin=" + JSON.stringify(upin);
+    let url = "https://" + sessionStorage.getItem("serverip").split("/")[0] + "/pi-home/getcorrectpin.php?pin=" + JSON.stringify(upin);
     fetch(url).then(function(res) {
             if (res.ok) {
                 return res.text();

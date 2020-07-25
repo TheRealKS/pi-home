@@ -27,11 +27,14 @@ export class SESSION implements ICommand {
                 let timeleft = element.expires - (Date.now());
                 if (cmddata.token === element.token && timeleft > 0) {
                     let reply = generateAuthorizedJSON(timeleft);
-                    if (!server.send(reply, cmddata.id)) {
+                    if (cmddata.oldid) {
                         server.replaceID(cmddata.id, cmddata.oldid);
+                        server.send(reply, cmddata.oldid);
+                        server.setAuthorised(cmddata.oldid, true);
+                    } else {
                         server.send(reply, cmddata.id);
-                    } 
-                    server.setAuthorised(cmddata.id, true);
+                        server.setAuthorised(cmddata.id, true);
+                    }
                 } else {
                     server.send(generateNotAuthorizedJSON(802), cmddata.id);
                 }
