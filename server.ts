@@ -1,92 +1,146 @@
-/// <reference types="ws" />
+import {ServerMode} from "./util/servermode";
+import {Logger} from "./util/logger";
+import {INVALID_MESSAGE, UNKNONW_USER} from "./util/constants";
 
-import * as CommandWorker from "./server/commandworker";
-import { AuthorisationJsonMessage, JsonMessage, CommandJsonMessage } from './server/jsondecoder';
-import { processCommand } from './server/commandworker';
+import WebSocket = require("ws");
+import http = require("http");
+import fs = require("fs");
+import { CommandWorker } from "./server/commandworker";
+import { Device } from "./devices/device";
+import { Shutters } from "./devices/shutters";
 import { GPIOAdaptor, Mode } from "./gpio/gpiomanager";
-import { AuthcodeCheckReturnValue, checkAuthCode } from "./server/authorisationmanager";
-import { generateAuthorizedJSON, generateNotAuthorizedJSON } from "./server/jsongenerator";
-import { PositionProvider, initPositionProvider } from "./sensor/positionprovider";
-
-const WebSocket = require("ws");
-
-const ws = new WebSocket.Server({ port: 6748 });
-
-global.history = new CommandWorker.CommandHistoryRegistry();
+import { generateClientID } from "./util/generator";
+import { isThisSecond } from "date-fns";
 
 interface ConnectionObject {
-    websocket: any,
-    authorised: boolean,
-    ip: any
+    ip : string;
+    authorised : boolean;
+    connectedTime : number;
+    ws : WebSocket;
 }
 
-var connections: Map<string, ConnectionObject> = new Map();
+export interface BaseMessage {
+    id : string;
+    type : string;
+}
 
-var gpio = new GPIOAdaptor();
-gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js", 100);
-gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js", 100);
+class PIHomeServer {
 
-var posprovider : PositionProvider = initPositionProvider(gpio);
+    private ws : WebSocket.Server;
+    private logger : Logger;
+    private connections : Map<string, ConnectionObject> = new Map();
+    private commandworker: CommandWorker;
+    private gpio : GPIOAdaptor;
+    private devices : Object = {};
 
-var auxcollection = {pos: posprovider};
+    constructor(serverport : number, mode : ServerMode) {
+        this.ws = new WebSocket.Server({ port: serverport});
+        this.logger = new Logger(mode);
+        this.logger.log("Server starting...", false);
+        this.initializeServer();
+        this.logger.log("Server started...", false);
+    }
 
-ws.on("connection", function (ws, req) {
-    let ip = req.connection.remoteAddress;
-    let id = generateID();
-    connections.set(id, { websocket: ws, authorised: false, ip: ip})
-    ws.on('message', msg => {
-        try {
-            var json = JSON.parse(msg);
-            processMessage(json, id);
-        } catch (error) {
-            console.log(error);
-            //TODO: response to client
-            return;
+    private initializeServer() {
+        this.ws.addListener("connection", this.connectionHandler.bind(this));
+        this.commandworker = new CommandWorker();
+        this.commandworker.intializeCommands();
+        
+        this.gpio = new GPIOAdaptor();
+        this.gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js", 100);
+        this.gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js", 100);
+
+        let shut = new Shutters(this.gpio);
+        this.devices["shutters"] = shut;
+    }
+
+    private connectionHandler(ws : WebSocket, req : http.IncomingMessage) {
+        let ip = req.connection.remoteAddress;
+        let id = generateClientID(ip);
+        this.connections.set(id, {ip : ip, authorised : false, connectedTime: Date.now(), ws: ws});
+        ws.send(id);
+
+        ws.on("message", (message : string) => {
+            try {
+                var json = JSON.parse(message);
+            } catch (err) {
+                ws.send(INVALID_MESSAGE);
+                return;
+            }
+            if (json.id && json.type) {
+                if (this.connections.has(json.id)) {
+                    let connObject = (this.connections.get(json.id).authorised !== null && this.connections.get(json.id).authorised !== undefined) ?
+                    this.connections.get(json.id).authorised :
+                    false;
+                    if (connObject) {
+                        this.commandworker.processCommand(json);
+                    } else {
+                        if (json.type == "AUTH" || json.type == "SESSION") {
+                            this.commandworker.processCommand(json);
+                        }
+                    }
+                } else {
+                    ws.send(UNKNONW_USER);
+                }
+            } else {
+                ws.send(INVALID_MESSAGE); 
+            }
+        });
+    }
+    
+    /**
+     * Sends a message to a client. Consider if it is really necessary to use
+     * @param message The message to be sent
+     * @param id Id of the client
+     * @returns True if id exists, false otherwise
+     */
+    send(message : string, id : string){
+        if (this.connections.has(id)) {
+            this.connections.get(id).ws.send(message);
+            return true;
         }
-    });
-});
+        return false;
+    }
 
-function processMessage(message, ip) {
-    let rawjson = <JsonMessage>message;
-    switch (rawjson.type) {
-        case "command":
-            if (!connections.get(ip).authorised) break;
-            let commandmessage: CommandJsonMessage = <CommandJsonMessage>rawjson;
-            processCommand(commandmessage, ip, gpio, auxcollection);
-            break;
-        case "auth":
-            let authmessage: AuthorisationJsonMessage = <AuthorisationJsonMessage>rawjson;
-            checkAuthCode(authmessage, continueAuthProcess, ip);
-        default:
-            break;
+    /**
+     * When a client connects, they may have a valid session token. In that case, the connection id needs to be replaced
+     * @param oldid Old id
+     * @param newid New id
+     * @returns True if oldid exists, false otherwise
+     */
+    replaceID(oldid : string, newid : string) {
+        if (this.connections.has(oldid)) {
+            let connobject = this.connections.get(oldid);
+            this.connections.set(newid, connobject);
+            this.connections.delete(oldid);
+            return true;
+        }
+        return false;
+    }
+
+    setAuthorised(id : string, value : boolean) {
+        if (this.connections.has(id)) {
+            let connobject = this.connections.get(id);
+            connobject.authorised = value;
+            this.connections.set(id, connobject);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get Devices
+     */
+    getDevices() {
+        if (Object.keys(this.devices).length > 0)
+            return this.devices;
+        else 
+            return null;
     }
 }
 
-function continueAuthProcess(returnvalue: AuthcodeCheckReturnValue, ip) {
-    let date = new Date();
-    let timestr = date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear() + "||" + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-    if (returnvalue.authorised === true) {
-        connections.get(ip).websocket.send(generateAuthorizedJSON(returnvalue.timeleft));
-        connections.get(ip).authorised = true;
-        console.log(timestr + "  --  New client authorized from ip " + connections.get(ip).ip);
-    } else {
-        if (returnvalue.errordetails)
-        connections.get(ip).websocket.send(generateNotAuthorizedJSON(returnvalue.error, returnvalue.errordetails.message));
-        else
-        connections.get(ip).websocket.send(generateNotAuthorizedJSON(returnvalue.error, undefined));
-        connections.get(ip).websocket.close(); //Not authorised
-        connections.get(ip).authorised = false;
-        console.log(timestr + "  --  Connection refused from ip " + connections.get(ip).ip + ", code: " + returnvalue.error);
-    }
-}
+//Initialisation
+const data = fs.readFileSync('./wsport.txt', {encoding:'utf8', flag:'r'}); 
 
-function generateID() {
-    let abc = "abcdefghijklmnopqrstuvwxyz0123456789";
-    let id = "";
-    for (var i = 0; i < 6; i++) {
-        id += Math.floor((Math.random() * abc.length-1));
-    }
-    return id;
-}
-
-console.log("Server started");
+const server : PIHomeServer = new PIHomeServer(parseInt(data), ServerMode.PRODUCTION);
+export default server;

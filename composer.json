@@ -1,6 +1,0 @@
-{
-    "require": {
-        "piphp/gpio": "^0.3.3",
-        "react/event-loop": "^0.4.3"
-    }
-}
