@@ -1,6 +1,6 @@
 import {ServerMode} from "./util/servermode";
 import {Logger} from "./util/logger";
-import {INVALID_MESSAGE} from "./util/constants";
+import {INVALID_MESSAGE, UNKNONW_USER} from "./util/constants";
 
 import WebSocket = require("ws");
 import http = require("http");
@@ -31,7 +31,7 @@ class PIHomeServer {
     private connections : Map<string, ConnectionObject> = new Map();
     private commandworker: CommandWorker;
     private gpio : GPIOAdaptor;
-    private devices : Array<Device> = [];
+    private devices : Object = {};
 
     constructor(serverport : number, mode : ServerMode) {
         this.ws = new WebSocket.Server({ port: serverport});
@@ -68,15 +68,19 @@ class PIHomeServer {
                 return;
             }
             if (json.id && json.type) {
-                let connObject = (this.connections.get(json.id).authorised !== null && this.connections.get(json.id).authorised !== undefined) ?
-                this.connections.get(json.id).authorised :
-                false;
-                if (connObject) {
-                    this.commandworker.processCommand(json);
-                } else {
-                    if (json.type == "AUTH" || json.type == "SESSION") {
+                if (this.connections.has(json.id)) {
+                    let connObject = (this.connections.get(json.id).authorised !== null && this.connections.get(json.id).authorised !== undefined) ?
+                    this.connections.get(json.id).authorised :
+                    false;
+                    if (connObject) {
                         this.commandworker.processCommand(json);
+                    } else {
+                        if (json.type == "AUTH" || json.type == "SESSION") {
+                            this.commandworker.processCommand(json);
+                        }
                     }
+                } else {
+                    ws.send(UNKNONW_USER);
                 }
             } else {
                 ws.send(INVALID_MESSAGE); 
@@ -128,7 +132,7 @@ class PIHomeServer {
      * Get Devices
      */
     getDevices() {
-        if (this.devices.length > 0)
+        if (Object.keys(this.devices).length > 0)
             return this.devices;
         else 
             return null;

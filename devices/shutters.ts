@@ -27,7 +27,7 @@ export class Shutters extends Device {
         if (this.timeout) {
             clearTimeout(this.timeout);
         }
-        this.timeout = setTimeout(this.stop, ACTUATIONTIME);
+        this.timeout = setTimeout(this.stop.bind(this), ACTUATIONTIME);
         setTimeout(() => this.position = 0, ACTUATIONTIME);
     }
 
@@ -39,7 +39,7 @@ export class Shutters extends Device {
         if (this.timeout) {
             clearTimeout(this.timeout);
         }
-        this.timeout = setTimeout(this.stop, ACTUATIONTIME);
+        this.timeout = setTimeout(this.stop.bind(this), ACTUATIONTIME);
         setTimeout(() => this.position = 100, ACTUATIONTIME);
     }
 

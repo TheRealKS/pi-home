@@ -65,7 +65,8 @@ function websocket() {
         time++;
     }, 1);
     if (window.WebSocket) {
-        var url = "ws://" + wsport;
+        wsport = sessionStorage.getItem("serverip");
+        var url = "wss://" + wsport;
         ws = new WebSocket(url);
         ws.onmessage = function (event) {
             if (wsstage == 0) {
@@ -178,24 +179,24 @@ function checkAuthCode() {
 
 function sendUp() {
     var upjson = {
-        type: "command",
-        command: "up"
+        type: "UP",
+        id: wsid
     };
     ws.send(JSON.stringify(upjson));
 }
 
 function sendDown() {
     var downjson = {
-        type: "command",
-        command: "down"
+        type: "DOWN",
+        id: wsid
     };
     ws.send(JSON.stringify(downjson));
 }
 
 function sendStop() {
     var stopjson = {
-        type: "command",
-        command: "stop"
+        type: "STOP",
+        id: wsid
     };
     ws.send(JSON.stringify(stopjson));
 }
