@@ -27,18 +27,22 @@ export class SESSION implements ICommand {
                 let timeleft = element.expires - (Date.now());
                 if (cmddata.token === element.token && timeleft > 0) {
                     let reply = generateAuthorizedJSON(timeleft);
-                    if (cmddata.oldid) {
+                    if (cmddata.id === element.id) {
+                        server.send(reply, cmddata.id);
+                        server.setAuthorised(cmddata.id, true);
+                        return;
+                    } else if (cmddata.oldid === element.id) {
                         server.replaceID(cmddata.id, cmddata.oldid);
                         server.send(reply, cmddata.oldid);
                         server.setAuthorised(cmddata.oldid, true);
+                        return;
                     } else {
-                        server.send(reply, cmddata.id);
-                        server.setAuthorised(cmddata.id, true);
+                        server.send(generateNotAuthorizedJSON(802), cmddata.id);
+                        return;
                     }
-                } else {
-                    server.send(generateNotAuthorizedJSON(802), cmddata.id);
                 }
             }
+            server.send(generateNotAuthorizedJSON(802), cmddata.id);
         });
         return CommandResult.UNKNOWN;
     }
