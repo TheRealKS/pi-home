@@ -1,38 +1,38 @@
-/// <reference types="node-schedule" />
+import Agenda = require("agenda");
+import { Programme } from './programme';
+import { ProgrammeRule, StaticProgrammeRule, AutoProgrammeRule } from "./structure/i_programme";
 
-import { Job, RecurrenceRule } from "node-schedule";
+const mongoConnectionString = 'mongodb://127.0.0.1/agenda';
 
-var schedule = require('node-schedule');
+const agenda = new Agenda({db: {address: mongoConnectionString}});
 
-export interface ScheduledJob {
-    scheduledon : number,
-    jobobject : Job
-}
+class Scheduler {
 
-export class Schedule {
+    currentProgramme : Programme;
+    
+    constructor() {
 
-    schedules : ScheduledJob[] = [];
-
-    scheduleJob(recurrence : RecurrenceRule, jobfunction : Function) {
-        let job = schedule.scheduleJob(recurrence, jobfunction);
-        this.schedules.push(job);
     }
 
-    cancelJob(id : number) {
-        if (this.schedules[id] !== void 0) {
-            this.schedules[id].jobobject.cancel();
+    loadProgramme(pname : string) {
+        Programme.fromJSON("../schedules/" + pname + ".json").then(res => {this.currentProgramme = res});
+    }
+
+    addRule(r : ProgrammeRule) {
+        if (this.isStaticRule(r)) {
+            if (!r.randomize) {
+                agenda.define("Job!", job => {
+                    
+                })
+            } else {
+                //TODO: Implement random
+            }
+        } else {
+
         }
     }
 
-    rescheduleJob(id: number, newRecurrence : RecurrenceRule) {
-        if (this.schedules[id] !== void 0) {
-            this.schedules[id].jobobject.reschedule(newRecurrence);
-        }
-    }
-
-    skipJob(id : number) {
-        if (this.schedules[id] !== void 0) {
-            this.schedules[id].jobobject.cancelNext();
-        }
+    private isStaticRule(r : ProgrammeRule) : r is StaticProgrammeRule {
+        return (r as StaticProgrammeRule).interval !== undefined;
     }
 }
