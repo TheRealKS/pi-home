@@ -235,7 +235,7 @@
         font-size: 4.5vw;
         margin-top: 2vh;
         margin-bottom: 2vh;
-        display: block;
+        display: none;
         align-content: center;
         color: #E78F07;
     }

@@ -10,7 +10,8 @@ import { Device } from "./devices/device";
 import { Shutters } from "./devices/shutters";
 import { GPIOAdaptor, Mode } from "./gpio/gpiomanager";
 import { generateClientID } from "./util/generator";
-import { isThisSecond } from "date-fns";
+import { Scheduler} from "./schedule/schedule";
+import { generateWelcomeJSON, generateErrorJSON } from "./server/jsongenerator";
 
 interface ConnectionObject {
     ip : string;
@@ -32,6 +33,7 @@ class PIHomeServer {
     private commandworker: CommandWorker;
     private gpio : GPIOAdaptor;
     private devices : Object = {};
+    private scheduler : Scheduler;
 
     constructor(serverport : number, mode : ServerMode) {
         this.ws = new WebSocket.Server({ port: serverport});
@@ -52,6 +54,8 @@ class PIHomeServer {
 
         let shut = new Shutters(this.gpio);
         this.devices["shutters"] = shut;
+
+        this.scheduler = new Scheduler();
     }
 
     private connectionHandler(ws : WebSocket, req : http.IncomingMessage) {
@@ -102,6 +106,21 @@ class PIHomeServer {
         return false;
     }
 
+    sendWelcome(id : string) {
+        if (this.connections.has(id)) {
+            if (this.getDevices()) {
+                let shutters : Shutters = this.devices["shutters"];
+                let p = this.scheduler.getCurrentProgrammeName() ?? "Geen programma geselecteerd";
+                let welcome = generateWelcomeJSON(shutters.getCurrentPosition(), p, "", "");
+                this.connections.get(id).ws.send(welcome);
+            } else {
+                this.connections.get(id).ws.send(generateErrorJSON("Shutters not initialised"));
+            }
+            return true;
+        }
+        return false;
+    }
+
     /**
      * When a client connects, they may have a valid session token. In that case, the connection id needs to be replaced
      * @param oldid Old id
@@ -118,6 +137,11 @@ class PIHomeServer {
         return false;
     }
 
+    /**
+     * Sets whether a client has succesfully completed the auth process
+     * @param id Id of client
+     * @param value true or false
+     */
     setAuthorised(id : string, value : boolean) {
         if (this.connections.has(id)) {
             let connobject = this.connections.get(id);

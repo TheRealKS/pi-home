@@ -30,11 +30,13 @@ export class SESSION implements ICommand {
                     if (cmddata.id === element.id) {
                         server.send(reply, cmddata.id);
                         server.setAuthorised(cmddata.id, true);
+                        server.sendWelcome(cmddata.id);
                         return;
                     } else if (cmddata.oldid === element.id) {
                         server.replaceID(cmddata.id, cmddata.oldid);
                         server.send(reply, cmddata.oldid);
                         server.setAuthorised(cmddata.oldid, true);
+                        server.sendWelcome(cmddata.oldid);
                         return;
                     } else {
                         server.send(generateNotAuthorizedJSON(802), cmddata.id);

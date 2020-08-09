@@ -3,8 +3,6 @@
         "outDir": ".\/out",
         "removeComments": true,
         "lib": [
-            "dom",
-            "dom.iterable",
             "ES2019"            
         ],
         "target": "ES2019",

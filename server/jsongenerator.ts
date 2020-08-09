@@ -27,9 +27,18 @@ export function generateSessionTokenJSON(id : string, token : string, expiry : n
     return JSON.stringify(o);
 }
 
+export function generateWelcomeJSON(position : number, schedule : string, lasttask : string, nexttask : string) {
+    let o = createBaseJSON("WELCOME");
+    o["pos"] = position;
+    o["schedule"] = schedule;
+    o["lasttask"] = lasttask;
+    o["nexttask"] = nexttask;
+    return JSON.stringify(o);
+}
+
 //types: normal, critical
 export function generateErrorJSON(error : string, code? : number, type : string = "normal") {
-    let o = createBaseJSON("error");
+    let o = createBaseJSON("ERROR");
     o["error"] = error;
     o["type"] = type;
     o["code"] = code;

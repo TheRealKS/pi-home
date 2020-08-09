@@ -105,20 +105,16 @@ function websocket() {
                 }
             } else {
                 var json = JSON.parse(event.data);
-                if (json.type === "lastcommand") {
-                    //Lastcommand logic
-                    if (json.lastcommand !== "stop") {
-                        if (json.lastcommand = "up") {
-                            document.getElementById("position").innerHTML = "Positie: 0% (op)";
-                        } else {
-                            document.getElementById("position").innerHTML = "Positie: 100% (neer)";
-                        }
-                        var fab = document.getElementById("fab");
-                        fab.classList += " spin";
-                        setTimeout(function () {
-                            fab.classList = "material-button-floating-text material-icons";
-                        }, 500);
-                    }
+                switch (json.type) {
+                    case "WELCOME":
+                        document.getElementById("obj-pos").innerHTML = json.pos === 0 ? "0% (Op)" : "100% (Neer)";
+                        document.getElementById("obj-prog-name").innerHTML = json.schedule;
+                        break;
+                    case "ERROR":
+                        alert(json.error);
+                        break;
+                    default:
+                        break;
                 }
             }
         };
