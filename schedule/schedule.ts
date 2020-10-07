@@ -1,13 +1,11 @@
-import Agenda = require("agenda");
+import Bull = require("bull");
 import { Programme } from './programme';
 import { ProgrammeRule, StaticProgrammeRule, AutoProgrammeRule } from "./structure/i_programme";
 import server from  "../server";
 import { Shutters } from "../devices/shutters";
 import { shake128 } from "js-sha3";
 
-const mongoConnectionString = 'mongodb://127.0.0.1/agenda-testcd';
-
-const agenda = new Agenda({db: {address: mongoConnectionString}});
+const agenda = new Bull('scheduler', 'redis://127.0.0.1:6379');
 
 export class Scheduler {
 
