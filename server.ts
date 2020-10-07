@@ -56,6 +56,7 @@ class PIHomeServer {
         this.devices["shutters"] = shut;
 
         this.scheduler = new Scheduler();
+        this.scheduler.loadProgramme("test");
     }
 
     private connectionHandler(ws : WebSocket, req : http.IncomingMessage) {
@@ -166,5 +167,5 @@ class PIHomeServer {
 //Initialisation
 const data = fs.readFileSync('./wsport.txt', {encoding:'utf8', flag:'r'}); 
 
-const server : PIHomeServer = new PIHomeServer(parseInt(data), ServerMode.PRODUCTION);
+const server : PIHomeServer = new PIHomeServer(parseInt(data), ServerMode.VERBOSE);
 export default server;

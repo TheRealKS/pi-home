@@ -1,20 +1,27 @@
 import Bull = require("bull");
 import { Programme } from './programme';
 import { ProgrammeRule, StaticProgrammeRule, AutoProgrammeRule } from "./structure/i_programme";
-import server from  "../server";
+import server from "../server";
 import { Shutters } from "../devices/shutters";
-import { shake128 } from "js-sha3";
 
 const agenda = new Bull('scheduler', 'redis://127.0.0.1:6379');
 
 export class Scheduler {
 
-    private currentProgramme : Programme;
+    private currentProgramme: Programme;
 
-    loadProgramme(pname : string) {
-        Programme.fromJSON("../schedules/" + pname + ".json").then(res => {this.currentProgramme = res});
-        this.currentProgramme.content.forEach(val => {
-            this.addRule(val);
+    constructor() {
+        agenda.process(function(job, done) {
+            this.processJob(job, done);
+        }.bind(this));
+    }
+
+    loadProgramme(pname: string) {
+        Programme.fromJSON("./schedules/" + pname + ".json").then(res => {
+            this.currentProgramme = res; 
+            this.currentProgramme.content.forEach(val => {
+                this.addRule(val);
+            });
         });
     }
 
@@ -22,27 +29,12 @@ export class Scheduler {
         return this?.currentProgramme.name;
     }
 
-    addRule(r : ProgrammeRule) {
-        let jobname = shake128(JSON.stringify(r), 64);
+    async addRule(r: ProgrammeRule) {
         if (this.isStaticRule(r)) {
             if (!r.randomize) {
-                //TODO: Implement proper system
-                agenda.define(jobname, job => {
-                    let devices = server.getDevices();
-                    if (devices) {
-                        let shutters : Shutters = devices["shutters"];
-                        if (r.action.pos === 100) {
-                            //Move down
-                            shutters.moveDown();
-                        } else if (r.action.pos === 0) {
-                            //Move up
-                            shutters.moveUp();
-                        } else {
-                            throw "Unsupported position: " + r.action.pos;
-                        }
-                    }
+                const job = await agenda.add(r, { repeat: { cron: r.interval } }).then(job => {
+                    console.log("Added: " + job.data);
                 });
-                agenda.every(r.interval, jobname);
             } else {
                 //TODO: Implement random
                 throw "Random not yet supported";
@@ -53,7 +45,26 @@ export class Scheduler {
         }
     }
 
-    private isStaticRule(r : ProgrammeRule) : r is StaticProgrammeRule {
+    processJob(j : Bull.Job, done : any) {
+        console.log("Processing");
+        let job : StaticProgrammeRule = j.data;
+        let devices = server.getDevices();
+        if (devices) {
+            let shutters: Shutters = devices["shutters"];
+            if (job.action.pos === 100) {
+                //Move down
+                shutters.moveDown();
+            } else if (job.action.pos === 0) {
+                //Move up
+                shutters.moveUp();
+            } else {
+                throw "Unsupported position: " + job.action.pos;
+            }
+        }
+        done();
+    }
+
+    private isStaticRule(r: ProgrammeRule): r is StaticProgrammeRule {
         return (r as StaticProgrammeRule).interval !== undefined;
     }
 }

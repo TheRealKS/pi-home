@@ -1,0 +1,15 @@
+{
+    "name": "test",
+    "timecreated": 0,
+    "lastedited": 0,
+    "content": [
+        {
+            "action": {
+                "pos": 100
+            },
+            "condition": {},
+            "interval": "12 20 * * *",
+            "randomize": false
+        }
+    ]
+}
