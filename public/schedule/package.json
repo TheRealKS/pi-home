@@ -1,14 +1,14 @@
 {
-  "name": "schedule-editor",
+  "name": "schedule",
   "version": "1.0.0",
   "description": "",
-  "main": "editor.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "slim-js": "^4.0.5"
+    "lit-element": "^2.4.0"
   }
 }

@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;700&display=swap');
+
+html,
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #FFFFFF;
+    width: 100vw;
+    height: 100vh;
+    overflow-x: hidden;
+    margin: 0px;
+    padding: 0px;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -o-user-select: none;
+}
+
+.header {
+    background-color: #3F51B5;
+    width: 100vw;
+    display: block;
+    padding-left: 4vw;
+    padding-right: 4vw;
+    padding-top: 3vh;
+    padding-bottom: 3vh;
+}
+
+.content {
+    display: grid;
+    width: 100vw;
+    height: 94vh;
+    grid-template-columns: 50vw 50vw;
+    grid-template-rows: 86vh 8vh;
+    grid-template-areas:
+        "overview details"
+        "addbttn details";
+}
+
+.overview {
+    grid-column: overview / overview;
+    grid-row: 1 / 1;
+}
+
+.add_bttn {
+    background-color: #3F51B5;
+    grid-column: overview / overview;
+    grid-row: 2 / 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5em;
+    font-weight: 100;
+    cursor: pointer;
+    border-top: black 1px solid;
+}
+
+.details {
+    border-left: black 1px solid;
+    grid-column: details / details;
+    grid-row: span 2;
+}
+
+.list_separator {
+    display: flex;
+    align-items: center;
+    width: 49vw;
+    padding-left: 1vw;
+    height: 5vh;
+    background-color: gray;
+    font-weight: 700;
+}
+
+.list_item {
+    display: grid;
+    grid-template-columns: 2.5em calc(50vw - 2.5em);
+    grid-template-rows: 60% 40%;
+    grid-template-areas:
+    "icon maintext"
+    "icon subtext";
+    padding-top: 2vh;
+    padding-bottom: 2vh;
+    border-bottom: black solid 1px;
+}
+
+.list_item_icon {
+    grid-column: icon / icon;
+    grid-row: span 2;
+    width: 100%;
+    font-size: 2.5em;
+    align-self: stretch;
+    border-right: 1px solid gray;
+}
+
+.maintext_listitem {
+    margin-left: 2vw;
+    font-weight: 400;
+    font-size: 1.2em;
+}
+
+.subtext_listitem {
+    margin-left: 2vw;
+    font-weight: 300;
+    font-size: 1em;
+}

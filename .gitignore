@@ -10,3 +10,5 @@
 /public/schedule/**/*.js
 /.vscode
 /out
+/public/schedule/js
+/public/schedule/node_modules
