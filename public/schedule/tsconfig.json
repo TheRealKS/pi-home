@@ -7,6 +7,6 @@
         "experimentalDecorators": true
     },
     "include": [
-        "src/*.ts", "src/elements/overview-list.ts"
+        "src/*.ts", "src/elements/*.ts"
     ]
 }
