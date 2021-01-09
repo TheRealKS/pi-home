@@ -1,6 +1,7 @@
 import { LitElement, html, customElement, property, css } from '../../node_modules/lit-element/lit-element';
 import { IProgramme, StaticProgrammeRule } from '../sructure';
 import { isStaticRule, sortProgrammeRules } from '../scheduleparser';
+import { materialicons } from './material-icon';
 
 const day = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
 
@@ -62,7 +63,6 @@ export class OverviewList extends LitElement {
     
     render() {
         let h = [];
-        h.push(html`<link href="https://fonts.googleapis.com/css2?family=Material+Icons+Sharp" rel="stylesheet">`);
         let sortedprogramme = sortProgrammeRules(this.programme.content);
         for (var i = 0; i < sortedprogramme.length; i++) {
             let rules = sortedprogramme[i];
@@ -75,7 +75,7 @@ export class OverviewList extends LitElement {
                     let time = cron[1] + ":" + cron[0];
                     h.push(html`
                         <div class="list_item">
-                            <span class="material-icons-sharp list_item_icon">import_export</span>
+                            <span class="material-icons list_item_icon">import_export</span>
                             <span class="maintext_listitem">${time}</span>
                             <span class="subtext_listitem">${rule.action.pos}</span>
                         </div>
@@ -89,6 +89,6 @@ export class OverviewList extends LitElement {
     }
 
     static get styles() {
-        return style;
+        return [materialicons, style];
     }
 }

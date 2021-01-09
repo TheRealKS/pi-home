@@ -2,6 +2,7 @@
     <head>
         <link rel="stylesheet" href="css/index.css">
         <script type="module" src="js/main.js"></script>
+        <script type="module" src="js/elements/day-selector.js"></script>
     </head>
     <body>
         <div class="header"></div>
@@ -14,7 +15,12 @@
             <div class="details">
                 <span class="list_separator">Schakelpunt toevoegen</span>
                 <div class="details-content">
-                    <span class="maintext">Type</span>
+                    <span class="maintext">Type: Standaard</span>
+                    <day-selector></day-selector>
+                    <span class="maintext">Tijd:</span>
+                    <input type="time">
+                    <span class="maintext">Positie</span>
+                    <input type="number" min="0", max="100">%
                 </div>
             </div>
         </div>
