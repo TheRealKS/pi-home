@@ -131,4 +131,35 @@ body {
     position: relative;
     float: left;    
     margin-left: 1vw;
+    align-items: center;
+    flex-direction: column;
+}
+
+.details-content > * {
+    padding-top: 2vh;
+}
+
+.maintext {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.circle-selector {
+    display: flex;
+    align-items: center;
+}
+
+.circle-select {
+    border: 1px solid black;
+    border-radius: 50%;
+    font-size: 1.5em;
+    width: 1.7em;
+    height: 1.7em;
+    text-align: center;
+    line-height: 1.7em;
+    margin-right: 1vw;
+}
+
+.circle-select-selected {
+    background-color: gray;
 }
