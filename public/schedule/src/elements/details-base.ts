@@ -1,23 +1,14 @@
 import { LitElement, html, customElement, property, css } from '../../node_modules/lit-element/lit-element';
 
 const style = css`
-.details-content {
+.x {
     display: flex;
     align-items: center;
     flex-direction: column;
 }
 
-.details-content > * {
+.x > * {
     padding-top: 2vh;
-}
-
-::slotted(*) {
-    padding-top: 2vh;
-}
-
-.maintext {
-    font-weight: bold;
-    font-size: 1.5em;
 }
 
 .list_separator {
@@ -28,6 +19,7 @@ const style = css`
     height: 5vh;
     background-color: gray;
     font-weight: 700;
+    margin-bottom: 2vh;
 }
 
 `;
@@ -38,17 +30,19 @@ export class DetailsBase extends LitElement {
     @property({type: String})
     header : string;
 
-    constructor(h : string) {
+    c: LitElement;
+
+    constructor(h : string, content : LitElement) {
         super();
         this.header = h;
+        this.c = content;
+        this.c.classList.add("x");
     }
     
     render() {
         return html`                
         <span class="list_separator">${this.header}</span>
-        <div class="details-content">
-            <slot></slot>
-        </div>
+        ${this.c}
         `;
     }
 

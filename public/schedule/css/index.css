@@ -136,7 +136,7 @@ body {
 }
 
 .details-content > * {
-    padding-top: 2vh;
+    margin-top: 2vh;
 }
 
 .maintext {
@@ -162,4 +162,24 @@ body {
 
 .circle-select-selected {
     background-color: gray;
+}
+
+.button_confirm {
+    background-color: #3F51B5;
+    border-radius: 0.5em;
+    color: white;
+    padding: 0.5em;
+    padding-right: 1em;
+    padding-left: 1em;
+    cursor: pointer;
+    border: 1px solid black;
+}
+
+.button_confirm:hover {
+    background-color: gray;
+}
+
+.button_confirm:active {
+    background-color: white;
+    color: black;
 }

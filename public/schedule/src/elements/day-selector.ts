@@ -35,13 +35,19 @@ const style = css`
 export class DaySelector extends LitElement {
 
     private selected = null;
+    multiselect : boolean = false;
+
+    constructor(multi : boolean = false) {
+        super();
+        this.multiselect = multi;
+    }
 
     render() {
         let days = ["M", "D", "W", "D", "F", "S", "S"];
         
         return html`
             <ul class="date-picker">
-                ${days.map((item) => html`<li @click=${this.itemClickHandler} class="date-picker-item">${item}</li>`)}
+                ${days.map((item, i) => html`<li id=${i} @click=${this.multiselect ? this.itemClickHandlerMulti : this.itemClickHandlerSingle} class="date-picker-item">${item}</li>`)}
             </ul>
         `;
     }
@@ -50,7 +56,26 @@ export class DaySelector extends LitElement {
         return this.selected.innerHTML;
     }
 
-    private itemClickHandler = {
+    private itemClickHandlerMulti = {
+        handleEvent(e : MouseEvent) {
+            let t = <HTMLElement>e.target;
+            if (!this.selected) {
+                this.selected = [t.id];
+                t.style.backgroundColor = "gray";
+            } else {
+                if (this.selected.includes(t.id)) {
+                    t.style.backgroundColor = "white";
+                    this.selected.splice(1, this.selected.indexOf(t.id));
+                } else {
+                    t.style.backgroundColor = "gray";
+                    this.selected.push(t.id);
+                }
+            }
+        },
+        capture: true
+    }
+
+    private itemClickHandlerSingle = {
         handleEvent(e : MouseEvent) {
             let t = <HTMLElement>e.target;
             if (this.selected) {
