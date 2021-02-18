@@ -31,10 +31,12 @@ const style = css`
 }
 `;
 
+const days = ["M", "D", "W", "D", "F", "S", "S"];
+
 @customElement('day-selector')
 export class DaySelector extends LitElement {
 
-    private selected = null;
+    private selected : Array<String> | HTMLElement = null;
     multiselect : boolean = false;
 
     constructor(multi : boolean = false) {
@@ -43,8 +45,6 @@ export class DaySelector extends LitElement {
     }
 
     render() {
-        let days = ["M", "D", "W", "D", "F", "S", "S"];
-        
         return html`
             <ul class="date-picker">
                 ${days.map((item, i) => html`<li id=${i} @click=${this.multiselect ? this.itemClickHandlerMulti : this.itemClickHandlerSingle} class="date-picker-item">${item}</li>`)}
@@ -53,10 +53,15 @@ export class DaySelector extends LitElement {
     }
 
     getSelected() {
-        return this.selected.innerHTML;
+        if (this.multiselect) {
+            return this.itemClickHandlerMulti.selected;
+        }
+        let s = this.itemClickHandlerSingle.selected;
+        return [s.id];
     }
 
     private itemClickHandlerMulti = {
+        selected : null,
         handleEvent(e : MouseEvent) {
             let t = <HTMLElement>e.target;
             if (!this.selected) {
@@ -76,6 +81,7 @@ export class DaySelector extends LitElement {
     }
 
     private itemClickHandlerSingle = {
+        selected : null,
         handleEvent(e : MouseEvent) {
             let t = <HTMLElement>e.target;
             if (this.selected) {

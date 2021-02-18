@@ -19,11 +19,34 @@ body {
 .header {
     background-color: #3F51B5;
     width: 100vw;
+    height: 6vh;
     display: block;
-    padding-left: 4vw;
-    padding-right: 4vw;
-    padding-top: 3vh;
-    padding-bottom: 3vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.programme_name {
+    color: white;
+    font-size: 1.4em;
+}
+
+.header_icon {
+    color: white;
+    margin-right: 4vh;
+    margin-left: 4vh;
+    padding: 0.2em;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.header_icon:hover {
+    background-color: lightgray;
+    color: black;
+}
+.header_icon:active {
+    background-color: gray;
+    color: black;
 }
 
 .content {
