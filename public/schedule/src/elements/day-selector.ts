@@ -1,3 +1,4 @@
+import { isThisSecond } from 'date-fns';
 import { LitElement, html, customElement, property, css } from '../../node_modules/lit-element/lit-element';
 
 const style = css`
@@ -23,6 +24,10 @@ const style = css`
     cursor: pointer;
 }
 
+.selected {
+    background-color: gray;
+}
+
 .date-picker-item:hover {
     background-color: gray;
 }
@@ -36,18 +41,30 @@ const days = ["M", "D", "W", "D", "F", "S", "S"];
 @customElement('day-selector')
 export class DaySelector extends LitElement {
 
-    private selected : Array<String> | HTMLElement = null;
+    private selected : Array<String>;
+    private selectid : Number; 
     multiselect : boolean = false;
 
-    constructor(multi : boolean = false) {
+    constructor(multi : boolean = false, days : Array<Number>) {
         super();
         this.multiselect = multi;
+        if (!this.multiselect) {
+            if (days.length > 1) {
+                throw "Mismatch between parameter multiselect and days";
+            } else if (days.length != 0) {
+                this.selectid = days[0];
+                this.itemClickHandlerSingle.selectid = days[0];
+            }
+        } else {
+            this.selected = days.map(toString);
+            this.itemClickHandlerMulti.selected = this.selected;
+        }
     }
 
     render() {
         return html`
             <ul class="date-picker">
-                ${days.map((item, i) => html`<li id=${i} @click=${this.multiselect ? this.itemClickHandlerMulti : this.itemClickHandlerSingle} class="date-picker-item">${item}</li>`)}
+                ${days.map((item, i) => html`<li id=${i} @click=${this.multiselect ? this.itemClickHandlerMulti : this.itemClickHandlerSingle} class=${this.isSelected(i) ? "date-picker-item selected" : "date-picker-item"}>${item}</li>`)}
             </ul>
         `;
     }
@@ -58,6 +75,21 @@ export class DaySelector extends LitElement {
         }
         let s = this.itemClickHandlerSingle.selected;
         return [s.id];
+    }
+
+    firstUpdated(props) {
+        if (!this.multiselect) {
+            let elem = this.shadowRoot.getElementById(this.selectid?.toString()) ?? null;
+            this.itemClickHandlerSingle.selected = elem;
+        }
+    }
+
+    private isSelected(id) {
+        if (!this.multiselect) {
+            return this.selectid == id;
+        } else {
+            return this.selected.includes(id);
+        }
     }
 
     private itemClickHandlerMulti = {

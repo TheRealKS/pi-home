@@ -1,8 +1,10 @@
 import { fetchProgramme } from "./scheduleparser"
 import {OverviewList} from "./elements/overview-list";
 import { DetailsBase } from "./elements/details-base";
-import { AddPoint } from "./elements/add-point";
-import { IProgramme, ProgrammeRule } from "./sructure";
+import { AddPoint, FormMode } from "./elements/add-point";
+import { IProgramme, ProgrammeRule, StaticProgrammeRule } from "./sructure";
+import { parseCronToInputs } from "./cronparser";
+import { LitElement } from "../node_modules/lit-element/lit-element";
 window.onload = () => {
     fetchProgramme("test").then(p => {
        app = new ProgrammeManager(p);
@@ -29,6 +31,20 @@ export class ProgrammeManager {
 
     addRule(r : ProgrammeRule) {
         this.programme.content.push(r);
+    }
+
+    editRule(index : number) {
+        let r = <StaticProgrammeRule>this.programme.content[index];
+        let inputs = parseCronToInputs(r.interval);
+
+        let editor = new AddPoint(inputs.t, r.action.pos, inputs.d, FormMode.EDIT);
+        this.swapContext(editor, "Schakelpunt Bewerken");
+    }
+
+    swapContext(newctx : LitElement, newtitle : string) {
+        let det = new DetailsBase(newtitle, newctx);
+        document.getElementById("details").innerHTML = "";
+        document.getElementById("details").appendChild(det);
     }
 
     init() {

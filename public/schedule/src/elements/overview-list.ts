@@ -2,6 +2,7 @@ import { LitElement, html, customElement, property, css } from '../../node_modul
 import { IProgramme, StaticProgrammeRule } from '../sructure';
 import { isStaticRule, sortProgrammeRules } from '../scheduleparser';
 import { materialicons } from './material-icon';
+import { app } from '../main';
 
 const day = ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag"];
 
@@ -98,13 +99,14 @@ export class OverviewList extends LitElement {
             let rules = sortedprogramme[i];
             if (!rules) continue;
             h.push(html`<span class="list_separator">${day[i]}</span>`);
-            rules.forEach(el => {
+            rules.forEach((e, j) => {
+                let el = e.rule;
                 if (isStaticRule(el)) {
                     let rule = <StaticProgrammeRule>el;
                     let cron = rule.interval.split(" ");
                     let time = cron[1] + ":" + cron[0];
                     h.push(html`
-                        <div class="list_item" index=${i}>
+                        <div class="list_item" index=${i} rule=${e.originalindex}>
                             <img class="list_item_icon" src="img/import_export.svg">
                             <span class="maintext_listitem">${time}</span>
                             <span class="subtext_listitem">${rule.action.pos}%</span>
@@ -126,8 +128,11 @@ export class OverviewList extends LitElement {
         alert("Weet u het zeker!" + this);
     }
 
-    edit(event) {
-        alert("Bewerken!" + this);
+    edit(event : MouseEvent) {
+        let element = <HTMLElement>event.composedPath()[2];
+        let rule = element.getAttribute("rule");
+        
+        app.editRule(parseInt(rule));
     }
 
     static get styles() {
