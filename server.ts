@@ -39,21 +39,25 @@ class PIHomeServer {
         this.ws = new WebSocket.Server({ port: serverport});
         this.logger = new Logger(mode);
         this.logger.log("Server starting...", false);
-        this.initializeServer();
+        this.initializeServer(mode);
         this.logger.log("Server started...", false);
     }
 
-    private initializeServer() {
+    private initializeServer(mode : ServerMode) {
         this.ws.addListener("connection", this.connectionHandler.bind(this));
         this.commandworker = new CommandWorker();
         this.commandworker.intializeCommands();
         
-        this.gpio = new GPIOAdaptor();
-        this.gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js", 100);
-        this.gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js", 100);
+        if (mode !== ServerMode.EMULATION) {
+            this.gpio = new GPIOAdaptor();
+            this.gpio.createNewInstance("relais1", 14, Mode.OUTPUT, "server.js", 100);
+            this.gpio.createNewInstance("relais2", 15, Mode.OUTPUT, "server.js", 100);
 
-        let shut = new Shutters(this.gpio);
-        this.devices["shutters"] = shut;
+            let shut = new Shutters(this.gpio);
+            this.devices["shutters"] = shut;
+        } else {
+            //Whatever
+        }
 
         this.scheduler = new Scheduler();
         this.scheduler.loadProgramme("test");
@@ -81,7 +85,7 @@ class PIHomeServer {
                         this.commandworker.processCommand(json);
                     } else {
                         if (json.type == "AUTH" || json.type == "SESSION") {
-                            this.commandworker.processCommand(json);
+                            setTimeout(function(){this.commandworker.processCommand(json)}.bind(this),100);
                         }
                     }
                 } else {
@@ -167,5 +171,5 @@ class PIHomeServer {
 //Initialisation
 const data = fs.readFileSync('./wsport.txt', {encoding:'utf8', flag:'r'}); 
 
-const server : PIHomeServer = new PIHomeServer(parseInt(data), ServerMode.VERBOSE);
+const server : PIHomeServer = new PIHomeServer(parseInt(data), ServerMode.EMULATION);
 export default server;
