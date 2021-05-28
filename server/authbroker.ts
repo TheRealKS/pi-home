@@ -1,5 +1,5 @@
 import { promisify } from 'util';
-import { readFile, writeFile } from 'fs';
+import { readFile, writeFile, watch } from 'fs';
 import { TOKENLOCATION, SESSIONTOKENLOCATION } from '../util/constants';
 import { Tuple } from '../util/tuple';
 
@@ -26,6 +26,12 @@ export class AuthorisationBroker {
         this.readAuthFile(SESSIONTOKENLOCATION).then(res => {
             this.sessiontokens = JSON.parse(res);
         });
+
+        watch(TOKENLOCATION, {}, function(type, nm) {
+            this.readAuthFile(SESSIONTOKENLOCATION).then(res => {
+                this.sessiontokens = JSON.parse(res);
+            });
+        }.bind(this));
     }
 
     checkAuthToken(token : string) : boolean {
