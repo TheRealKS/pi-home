@@ -12,6 +12,7 @@ import { GPIOAdaptor, Mode } from "./gpio/gpiomanager";
 import { generateClientID } from "./util/generator";
 import { Scheduler} from "./schedule/schedule";
 import { generateWelcomeJSON, generateErrorJSON } from "./server/jsongenerator";
+import { AuthorisationBroker } from "./server/authbroker";
 
 interface ConnectionObject {
     ip : string;
@@ -34,6 +35,7 @@ class PIHomeServer {
     private gpio : GPIOAdaptor;
     private devices : Object = {};
     private scheduler : Scheduler;
+    private broker : AuthorisationBroker;
 
     constructor(serverport : number, mode : ServerMode) {
         this.ws = new WebSocket.Server({ port: serverport});
@@ -61,6 +63,8 @@ class PIHomeServer {
 
         this.scheduler = new Scheduler();
         this.scheduler.loadProgramme("test");
+
+        this.broker = new AuthorisationBroker();
     }
 
     private connectionHandler(ws : WebSocket, req : http.IncomingMessage) {
@@ -165,6 +169,13 @@ class PIHomeServer {
             return this.devices;
         else 
             return null;
+    }
+
+    /**
+     * Get authorisation broker
+     */
+    getAuthBroker() {
+        return this.broker;
     }
 }
 
