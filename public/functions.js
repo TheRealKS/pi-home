@@ -65,8 +65,8 @@ function websocket() {
         time++;
     }, 1);
     if (window.WebSocket) {
-        wsport = sessionStorage.getItem("serverip");
-        var url = "wss://" + wsport;
+        wsport = "localhost:6748"; //sessionStorage.getItem("serverip");
+        var url = "ws://" + wsport;
         ws = new WebSocket(url);
         ws.onmessage = function (event) {
             if (wsstage == 0) {

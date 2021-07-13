@@ -85,6 +85,11 @@ function checkPin() {
     if (code.length == 4) {
     var upin = createSendable(code);
     let url = "https://" + sessionStorage.getItem("serverip").split("/")[0] + "/pi-home/getcorrectpin.php?pin=" + JSON.stringify(upin);
+    var date = new Date();
+    localStorage.timeauthorized = date.getTime();
+    localStorage.auth_token = pin;
+    window.location.replace("index.html");
+    return;
     fetch(url).then(function(res) {
             if (res.ok) {
                 return res.text();

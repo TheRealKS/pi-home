@@ -15,7 +15,7 @@
             $expiry = time() * 1000 + 3600000;
             $newentry = [
                 "token" => $code,
-                "expires" => $expiry
+                "expiry" => $expiry
             ];
             if (file_exists("./auth.json")) {
                 $oldjson = file_get_contents("./auth.json");
