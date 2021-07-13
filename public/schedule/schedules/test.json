@@ -9,7 +9,8 @@
             },
             "condition": {},
             "interval": "12 20 * * 1",
-            "randomize": false
+            "randomize": false,
+            "id": 1
         }
     ]
 }

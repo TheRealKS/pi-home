@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Test Auth</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+</head>
+
+<body>
+    <button id="pin">Retrieve auth token (enter correct pin)</button><br>
+    <button id="ws">Connect to WS</button><br>
+    <button id="sendauth">Send auth token message</button><br>
+    <button id="sendsession">Send session token message</button><br>
+    <button id="clear">Clear output</button><br>
+    <button id="runflow">Run entire auth flow</button>
+
+    <script>
+        var pin = {
+            "part1": "431ae5ae199cfca750d3927c3797c657dfe59b03e11b7d420040b3006de53b71388ac7bf0af5344b9103fc152c9a517d89524b9af63070bb00393ddca0865587",
+            "part2": "bb2b536f0606a0910bf4b98c74c75e966d0fbcd792ca55e3c768ca2e92234d504a4e4a7f09aac8705175ae1fb69be1404c2e031c2f9cf219ed441dfda3a3ed6d"
+        };
+        var authcode, wsid, authtoken, sessiontoken;
+        var ws;
+
+        function spin() {
+            fetch("../../getcorrectpin.php?pin=" + JSON.stringify(pin))
+                .then(res => {
+                    if (res.ok) {
+                        return res.text();
+                    }
+                })
+                .then(code => {
+                    authcode = code;
+                    document.getElementById("pin").after("Code = " + code);
+                });
+        }
+        function wsc() {
+            wsport = "localhost:6748"; //sessionStorage.getItem("serverip");
+            var url = "ws://" + wsport;
+            ws = new WebSocket(url);
+            ws.onmessage = function (event) {
+                wsid = event.data;
+                document.getElementById("ws").after("wsid = " + wsid);
+            };
+        }
+        function sendauth() {
+            ws.onmessage = function (event) {
+                sessiontoken = JSON.parse(event.data).token;
+                document.getElementById("sendauth").after("sessiontoken = " + sessiontoken);
+            }
+
+            var ajson = {
+                type: "AUTH",
+                token: authcode,
+                id: wsid
+            };
+            ws.send(JSON.stringify(ajson));
+        }
+        function sendsession() {
+            ws.onmessage = function (event) {
+                var message = JSON.parse(event.data);
+                if (message.type === "AUTH") {
+                    document.getElementById("sendsession").after("Authorised = " + message.valid);
+                }
+            };
+
+            var ajson = {
+                type: "SESSION",
+                token: sessiontoken,
+                id: wsid
+            };
+            ws.send(JSON.stringify(ajson));
+        }
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        window.onload = function () {
+            document.getElementById("pin").addEventListener("click", function() {spin();});
+
+            document.getElementById("ws").addEventListener("click", function(){wsc();});
+
+            document.getElementById("sendauth").addEventListener("click", function(){sendauth();});
+
+            document.getElementById("sendsession").addEventListener("click", function(){sendsession();});
+
+            document.getElementById("runflow").addEventListener("click", async function(){
+                spin();
+                wsc();
+                await sleep(500);
+                sendauth();
+                await sleep(500);
+                sendsession();
+            });
+
+            document.getElementById("clear").addEventListener("click", () => {
+                var text = document.body.childNodes;
+                text.forEach(element => {
+                    if (element.nodeName === "#text") {
+                        element.remove();
+                    }
+                });
+            })
+        };
+    </script>
+</body>
+
+</html>

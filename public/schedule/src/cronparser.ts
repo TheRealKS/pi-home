@@ -1,5 +1,4 @@
 import { DaySelector } from "./elements/day-selector";
-import { ProgrammeRule } from "./sructure";
 
 export function parseInputsToCron(selector : DaySelector, time : String) : Array<string> {
     let days : Array<number> = selector.getSelected().map(day => {
@@ -9,8 +8,8 @@ export function parseInputsToCron(selector : DaySelector, time : String) : Array
         }
         return dday + 1;
     });
-    let minute = time.split(":")[0];
-    let hour = time.split(":")[1]
+    let minute = time.split(":")[1];
+    let hour = time.split(":")[0]
 
     let rules = [];
     for (let d of days) {

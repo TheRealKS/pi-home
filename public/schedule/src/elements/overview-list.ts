@@ -2,7 +2,8 @@ import { LitElement, html, customElement, property, css } from '../../node_modul
 import { IProgramme, StaticProgrammeRule } from '../sructure';
 import { isStaticRule, sortProgrammeRules } from '../scheduleparser';
 import { materialicons } from './material-icon';
-import { app } from '../main';
+import { app } from '../edit';
+import { programmeEmpty } from '../util';
 
 const day = ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag"];
 
@@ -15,6 +16,14 @@ const style = css`
     height: 5vh;
     background-color: gray;
     font-weight: 700;
+}
+
+.list_empty {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .list_item {
@@ -83,29 +92,36 @@ const style = css`
 
 @customElement('overview-list')
 export class OverviewList extends LitElement {
-    
-    @property({attribute: true})
-    programme : IProgramme;
 
-    constructor(p : IProgramme) {
+    @property({ attribute: true })
+    programme: IProgramme;
+
+    constructor(p: IProgramme) {
         super();
         this.programme = p;
     }
-    
+
     render() {
         let h = [];
         let sortedprogramme = sortProgrammeRules(this.programme.content);
-        for (var i = 0; i < sortedprogramme.length; i++) {
-            let rules = sortedprogramme[i];
-            if (!rules) continue;
-            h.push(html`<span class="list_separator">${day[i]}</span>`);
-            rules.forEach((e, j) => {
-                let el = e.rule;
-                if (isStaticRule(el)) {
-                    let rule = <StaticProgrammeRule>el;
-                    let cron = rule.interval.split(" ");
-                    let time = cron[1] + ":" + cron[0];
-                    h.push(html`
+        if (programmeEmpty(sortedprogramme)) {
+            h.push(html`
+                <div class="list_empty">
+                    Nog geen schakelpunten
+                </div>
+            `);
+        } else {
+            for (var i = 0; i < sortedprogramme.length; i++) {
+                let rules = sortedprogramme[i];
+                if (!rules) continue;
+                h.push(html`<span class="list_separator">${day[i]}</span>`);
+                rules.forEach((e, j) => {
+                    let el = e.rule;
+                    if (isStaticRule(el)) {
+                        let rule = <StaticProgrammeRule>el;
+                        let cron = rule.interval.split(" ");
+                        let time = cron[1] + ":" + cron[0];
+                        h.push(html`
                         <div class="list_item" index=${i} rule=${e.originalindex}>
                             <img class="list_item_icon" src="img/import_export.svg">
                             <span class="maintext_listitem">${time}</span>
@@ -116,22 +132,29 @@ export class OverviewList extends LitElement {
                             </div>
                         </div>
                     `);
-                } else {
-                    //TODO
-                }
-            });
+                    } else {
+                        //TODO
+                    }
+                });
+            }
         }
         return html`${h}`;
     }
 
     delete(event) {
-        alert("Weet u het zeker!" + this);
+        let conf = confirm("Weet u het zeker!" + this);
+        if (conf) {
+            let element = <HTMLElement>event.composedPath()[2];
+            let rule = element.getAttribute("rule");
+
+            app.deleteRule(parseInt(rule));
+        }
     }
 
-    edit(event : MouseEvent) {
+    edit(event: MouseEvent) {
         let element = <HTMLElement>event.composedPath()[2];
         let rule = element.getAttribute("rule");
-        
+
         app.editRule(parseInt(rule));
     }
 

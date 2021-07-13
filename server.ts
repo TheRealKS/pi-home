@@ -32,7 +32,7 @@ class PIHomeServer {
     private logger : Logger;
     private connections : Map<string, ConnectionObject> = new Map();
     private commandworker: CommandWorker;
-    private gpio : GPIOAdaptor;
+    //private gpio : GPIOAdaptor;
     private devices : Object = {};
     private scheduler : Scheduler;
     private broker : AuthorisationBroker;
@@ -57,12 +57,11 @@ class PIHomeServer {
 
             let shut = new Shutters(this.gpio);
             this.devices["shutters"] = shut;
+            this.scheduler = new Scheduler();
+            this.scheduler.loadProgramme("test");
         } else {
             //Whatever
         }
-
-        this.scheduler = new Scheduler();
-        this.scheduler.loadProgramme("test");
 
         this.broker = new AuthorisationBroker();
     }

@@ -1,6 +1,6 @@
 import { LitElement, html, customElement, property, css } from '../../node_modules/lit-element/lit-element';
 import { parseInputsToCron } from '../cronparser';
-import { app } from '../main';
+import { app } from '../edit';
 import { ProgrammeRule, StaticProgrammeRule } from '../sructure';
 import { DaySelector } from './day-selector';
 
@@ -48,14 +48,20 @@ export class AddPoint extends LitElement {
     private pos : Number;
     @property({type: Array})
     private days : Array<Number>;
+    @property({type: Number})
+    private ruleid : Number;
 
     private mode : FormMode;
 
-    constructor(time? : String, pos? : Number, days: Array<Number> = [], mode : FormMode = FormMode.ADD) {
+    constructor(time? : String, pos? : Number, days: Array<Number> = [], ruleid? : Number, mode : FormMode = FormMode.ADD) {
         super();
         this.time = time;
         this.pos = pos;
         this.days = days;
+        this.ruleid = ruleid;
+        if (!this.ruleid) {
+            this.ruleid = app.getNextRuleID();
+        }
     }
 
     render() {
@@ -67,11 +73,11 @@ export class AddPoint extends LitElement {
             <input type="time" id="time" value="${this.time}">
             <span class="maintext">Positie</span>
             <input id="pos" type="number" min="0", max="100" value="${this.pos}">%
-            <div class="button_confirm" @click=${this.add}>${this.mode == FormMode.ADD ? "Toevoegen" : "Wijzigen"}</div>
+            <div class="button_confirm" @click=${this.addOrEdit}>${this.mode == FormMode.ADD ? "Toevoegen" : "Wijzigen"}</div>
         `;
     }
     
-    private add() {
+    private addOrEdit() {
         //@ts-ignore
         if (!this.selector) {
             alert("Niet alle velden zijn ingevuld!");
@@ -87,10 +93,11 @@ export class AddPoint extends LitElement {
                 interval : r,
                 condition : {},
                 action : {pos: pos},
-                randomize : false
+                randomize : false,
+                id : this.ruleid
             };
 
-            app.addRule(rule);
+            app.addOrEditRule(rule);
         }
     }
 

@@ -21,6 +21,7 @@ export interface ProgrammeRule {
     action : SwitchData;
     condition : SwitchCondition;
     priority? : number;
+    id? : Number;
 }
 
 export interface StaticProgrammeRule extends ProgrammeRule {
