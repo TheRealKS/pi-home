@@ -7,11 +7,12 @@ import http = require("http");
 import fs = require("fs");
 import { CommandWorker } from "./server/commandworker";
 import { Device } from "./devices/device";
-import { Shutters } from "./devices/shutters";
-import { GPIOAdaptor, Mode } from "./gpio/gpiomanager";
+//import { Shutters } from "./devices/shutters"; 
+//import { GPIOAdaptor, Mode } from "./gpio/gpiomanager";
 import { generateClientID } from "./util/generator";
 import { Scheduler} from "./schedule/schedule";
 import { generateWelcomeJSON, generateErrorJSON } from "./server/jsongenerator";
+import { AuthorisationBroker } from "./server/authbroker";
 
 interface ConnectionObject {
     ip : string;
@@ -31,9 +32,10 @@ class PIHomeServer {
     private logger : Logger;
     private connections : Map<string, ConnectionObject> = new Map();
     private commandworker: CommandWorker;
-    private gpio : GPIOAdaptor;
+    //private gpio : GPIOAdaptor;
     private devices : Object = {};
     private scheduler : Scheduler;
+    private broker : AuthorisationBroker;
 
     constructor(serverport : number, mode : ServerMode) {
         this.ws = new WebSocket.Server({ port: serverport});
@@ -55,12 +57,13 @@ class PIHomeServer {
 
             let shut = new Shutters(this.gpio);
             this.devices["shutters"] = shut;
+            this.scheduler = new Scheduler();
+            this.scheduler.loadProgramme("test");
         } else {
             //Whatever
         }
 
-        this.scheduler = new Scheduler();
-        this.scheduler.loadProgramme("test");
+        this.broker = new AuthorisationBroker();
     }
 
     private connectionHandler(ws : WebSocket, req : http.IncomingMessage) {
@@ -165,6 +168,13 @@ class PIHomeServer {
             return this.devices;
         else 
             return null;
+    }
+
+    /**
+     * Get authorisation broker
+     */
+    getAuthBroker() {
+        return this.broker;
     }
 }
 
