@@ -4,6 +4,10 @@ export async function fetchProgramme(nm : String) : Promise<IProgramme> {
     return fetch("schedules/" + nm + ".json").then(res => {if (res.ok) return res.json()});
 }
 
+export async function fetchProgrammes() : Promise<Array<IProgramme>> {
+    
+}
+
 export interface Tuple {
     originalindex : number,
     rule : ProgrammeRule
