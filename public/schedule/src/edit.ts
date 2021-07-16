@@ -5,7 +5,9 @@ import { AddPoint, FormMode } from "./elements/add-point";
 import { IProgramme, ProgrammeRule, StaticProgrammeRule } from "./sructure";
 import { parseCronToInputs } from "./cronparser";
 import { LitElement } from "../node_modules/lit-element/lit-element";
-import { computeRuleSignature } from "./util";
+
+var editing = false;
+
 window.onload = () => {
     let query = new URLSearchParams(window.location.search);
     let p = query.get('p');
@@ -27,6 +29,22 @@ window.onload = () => {
     document.getElementById("save_bttn").addEventListener("click", () => {
         //Add save Routine
     });
+
+    document.getElementById("programme_name").addEventListener("dblclick", () => {
+        editing = true;
+        let el = document.getElementById("programme_name");
+        el.innerHTML = "Programma: <input type='text' value='" + el.innerHTML.split(" ")[1] + "'/>";
+    });
+
+    document.body.addEventListener("click", (event : MouseEvent) => {
+        if (editing && event.target.parentNode.id != "programme_name") {
+            let nm = document.getElementById("programme_name");
+            let name = nm.childNodes[1].value;
+            nm.innerHTML = "Programma: " + name;
+            app.editProgrammeName(name);
+            editing = false;
+        }
+    })
 }
 
 export var app : ProgrammeEditor;
@@ -39,12 +57,16 @@ export class ProgrammeEditor {
     private currentContext;
 
     constructor(p : IProgramme) {
-        if (p){
+        if (p) {
             this.programme = p;
             this.uiList = new OverviewList(p);
         } else {
             this.programme = createEmptyProgramme();
             this.uiList = new OverviewList(this.programme);
+            editing = true;
+            let el = document.getElementById("programme_name");
+            el.innerHTML = "Programma: <input id='name_edit' type='text' value='" + el.innerHTML.split(" ")[1] + "'/>";
+            document.getElementById('name_edit').focus();
         }
     }
 
@@ -75,6 +97,10 @@ export class ProgrammeEditor {
     deleteRule(index : number) {
         this.programme.content.splice(index, 1);
         this.uiList.requestUpdate();
+    }
+
+    editProgrammeName(nm : string) {
+        this.programme.name = nm;
     }
 
     swapContext(newctx : LitElement, newtitle : string) {
