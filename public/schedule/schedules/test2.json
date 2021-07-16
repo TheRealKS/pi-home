@@ -1,0 +1,16 @@
+{
+    "name": "ander programma",
+    "timecreated": 0,
+    "lastedited": 12459002,
+    "content": [
+        {
+            "action": {
+                "pos": 100
+            },
+            "condition": {},
+            "interval": "12 20 * * 1",
+            "randomize": false,
+            "id": 1
+        }
+    ]
+}

@@ -1,4 +1,4 @@
-import { fetchProgramme } from "./scheduleparser"
+import { createEmptyProgramme, fetchProgramme } from "./scheduleparser"
 import {OverviewList} from "./elements/overview-list";
 import { DetailsBase } from "./elements/details-base";
 import { AddPoint, FormMode } from "./elements/add-point";
@@ -7,10 +7,17 @@ import { parseCronToInputs } from "./cronparser";
 import { LitElement } from "../node_modules/lit-element/lit-element";
 import { computeRuleSignature } from "./util";
 window.onload = () => {
-    fetchProgramme("test").then(p => {
-       app = new ProgrammeEditor(p);
-       app.init();
-    });
+    let query = new URLSearchParams(window.location.search);
+    let p = query.get('p');
+    if (p) {
+        fetchProgramme("test").then(p => {
+            app = new ProgrammeEditor(p);
+            app.init();
+        });
+    } else {
+        app = new ProgrammeEditor(null);
+        app.init();
+    }
 
     document.getElementById("add_bttn").addEventListener("click", () => {
         let circles = new AddPoint();
@@ -32,9 +39,13 @@ export class ProgrammeEditor {
     private currentContext;
 
     constructor(p : IProgramme) {
-        this.programme = p;
-
-        this.uiList = new OverviewList(p);
+        if (p){
+            this.programme = p;
+            this.uiList = new OverviewList(p);
+        } else {
+            this.programme = createEmptyProgramme();
+            this.uiList = new OverviewList(this.programme);
+        }
     }
 
     addOrEditRule(r : ProgrammeRule) {

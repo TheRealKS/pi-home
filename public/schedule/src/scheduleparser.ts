@@ -5,7 +5,11 @@ export async function fetchProgramme(nm : String) : Promise<IProgramme> {
 }
 
 export async function fetchProgrammes() : Promise<Array<IProgramme>> {
-    
+    return fetch("http://localhost:3000/getschedules.php").then(res => {if (res.ok) return res.json()});
+}
+
+export async function fetchActiveProgramme() : Promise<any> {
+    return fetch("http://localhost:3000/getactiveschedule.php").then(res => {if (res.ok) return res.text()});
 }
 
 export interface Tuple {
@@ -35,4 +39,15 @@ export function sortProgrammeRules(p : Array<ProgrammeRule>) : Array<Array<Tuple
 
 export function isStaticRule(r: ProgrammeRule): r is StaticProgrammeRule {
     return (r as StaticProgrammeRule).interval !== undefined;
+}
+
+export function createEmptyProgramme() : IProgramme {
+    let now = new Date().getTime();
+    let o : IProgramme = {
+        name: "",
+        timecreated: now,
+        lastedited: now,
+        content : []
+    };
+    return o;
 }
