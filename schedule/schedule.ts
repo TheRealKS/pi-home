@@ -3,12 +3,14 @@ import { Programme } from './programme';
 import { ProgrammeRule, StaticProgrammeRule, AutoProgrammeRule } from "./structure/i_programme";
 import server from "../server";
 import { Shutters } from "../devices/shutters";
+import { State } from "./state";
 
 const agenda = new Bull('scheduler', 'redis://127.0.0.1:6379');
 
 export class Scheduler {
 
     private currentProgramme: Programme;
+    private previousState : State;
 
     constructor() {
         agenda.process(function(job, done) {
@@ -16,7 +18,13 @@ export class Scheduler {
         }.bind(this));
     }
 
-    loadProgramme(pname: string) {
+    async shutdown() {
+        //@ts-ignore
+        await agenda.obliterate({force:true});
+    }
+
+    async loadProgramme(pname: string) {
+        await agenda.empty();
         Programme.fromJSON("./schedules/" + pname + ".json").then(res => {
             this.currentProgramme = res; 
             this.currentProgramme.content.forEach(val => {
@@ -27,6 +35,51 @@ export class Scheduler {
 
     getCurrentProgrammeName() {
         return this?.currentProgramme.name;
+    }
+
+    async getNextRule() {
+        let jobs = await agenda.getWaiting();
+        if (jobs.length > 0) {
+            return jobs[0];
+        }
+        throw "No other jobs";
+    }
+
+    async skipNext() {
+        try {
+            let next = await this.getNextRule();
+            await agenda.removeJobs(next.id.toString());
+            return true;
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    getPrevState() {
+        if (this.previousState) {
+            return this.previousState;
+        }
+        throw "No previous state";
+    }
+
+    revertToPrevState() {
+        if (this.previousState) {
+            let devices = server.getDevices();
+            if (devices) {
+                let shutters : Shutters = devices["shutters"];
+                if (shutters.getCurrentPosition() != this.previousState.pos) {
+                    if (this.previousState.pos === 100) {
+                        //Move down
+                        shutters.moveDown();
+                    } else if (this.previousState.pos === 0) {
+                        //Move up
+                        shutters.moveUp();
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     async addRule(r: ProgrammeRule) {
@@ -51,6 +104,7 @@ export class Scheduler {
         let devices = server.getDevices();
         if (devices) {
             let shutters: Shutters = devices["shutters"];
+            this.previousState = {pos: shutters.getCurrentPosition(), changedby: job};
             if (job.action.pos === 100) {
                 //Move down
                 shutters.moveDown();
